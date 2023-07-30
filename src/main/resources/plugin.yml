@@ -1,0 +1,10 @@
+name: BlueMapSignExtractor
+version: '${project.version}'
+main: com.technicjelle.bluemapsignextractor.BlueMapSignExtractor
+api-version: '1.13'
+depend:
+  - BlueMap
+authors:
+  - TechnicJelle
+url: '${project.url}'
+description: '${project.description}'
