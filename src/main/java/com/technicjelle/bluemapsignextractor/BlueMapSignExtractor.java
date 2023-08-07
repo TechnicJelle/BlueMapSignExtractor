@@ -66,6 +66,7 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 
 	private void processMCA(BlueMapMap map, Path mcaFile) {
 		getLogger().info("Processing region " + mcaFile.getFileName().toString());
+		BlueNBT nbt = new BlueNBT();
 		Random random = new Random();
 		for (int z = 0; z < 32; z++) {
 			for (int x = 0; x < 32; x++) {
@@ -73,7 +74,6 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 					if (in == null) continue;
 
 					NBTReader reader = new NBTReader(in);
-					BlueNBT nbt = new BlueNBT();
 					Chunk chunk = nbt.read(reader, Chunk.class);
 
 					for (BlockEntity be : chunk.blockEntities) {

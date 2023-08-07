@@ -2,8 +2,9 @@ package com.technicjelle.bluemapsignextractor.models;
 
 import com.google.gson.Gson;
 
+@SuppressWarnings({"unused"})
 public class BlockEntity {
-	private final Gson gson = new Gson();
+	private static final Gson gson = new Gson();
 
 	public String id;
 	private String text1;
