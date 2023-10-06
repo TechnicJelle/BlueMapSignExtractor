@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>com.github.TechnicJelle</groupId>
 			<artifactId>UpdateCheckerJava</artifactId>
-			<version>v2.1</version>
+			<version>v2.2</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -96,13 +96,13 @@
 		<dependency>
 			<groupId>com.github.BlueMap-Minecraft</groupId>
 			<artifactId>BlueMapAPI</artifactId>
-			<version>v2.6.0</version>
+			<version>v2.6.1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.BlueMap-Minecraft</groupId>
 			<artifactId>BlueNBT</artifactId>
-			<version>v1.2.0</version>
+			<version>v1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bstats</groupId>
