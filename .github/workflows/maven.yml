@@ -21,6 +21,8 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+    - name: Log pom file
+      run: cat /home/runner/work/BlueMapSignExtractor/BlueMapSignExtractor/pom.xml
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
