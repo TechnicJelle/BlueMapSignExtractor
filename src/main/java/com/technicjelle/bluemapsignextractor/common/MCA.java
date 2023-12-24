@@ -32,27 +32,34 @@ public class MCA {
 	}
 
 	public ArrayList<BlockEntity> getBlockEntities() throws IOException {
-		ArrayList<BlockEntity> blockEntities = new ArrayList<>();
+		final ArrayList<BlockEntity> blockEntities = new ArrayList<>();
 		Class<? extends Chunk> chunkClass = null;
-		int dataVersion = 0;
 		for (int z = 0; z < 32; z++) {
 			for (int x = 0; x < 32; x++) {
-				InputStream in = loadChunk(x, z);
+				final InputStream in = loadChunk(x, z);
 				if (in == null) continue;
-				NBTReader reader = new NBTReader(in);
+				final NBTReader reader = new NBTReader(in);
 
 				if (chunkClass == null) {
 					ChunkWithVersion chunkWithVersion = getChunkClassFromChunk(x, z);
-					if (chunkWithVersion == null) continue;
-					dataVersion = chunkWithVersion.getDataVersion();
-					chunkClass = getChunkClassFromDataVersion(dataVersion);
+					if (chunkWithVersion == null) {
+						throw new IOException("Failed to conclude ChunkClass from chunk at " + x + ", " + z);
+					}
+					chunkClass = getChunkClassFromDataVersion(chunkWithVersion.getDataVersion());
 				}
 
 				Chunk chunk = nbt.read(reader, chunkClass);
-				if (dataVersion != chunk.getDataVersion()) {
-					dataVersion = chunk.getDataVersion();
-					chunkClass = getChunkClassFromDataVersion(dataVersion);
-					chunk = nbt.read(reader, chunkClass); //TODO: This will probably crash if it ever happens
+				final Class<? extends Chunk> newChunkClass = getChunkClassFromDataVersion(chunk.getDataVersion());
+
+				if (newChunkClass != chunkClass) {
+					System.err.println("Chunk at " + x + ", " + z + " has a different data version than the first chunk in this region file. Switching...");
+					chunkClass = newChunkClass;
+					//Load chunk again, with the new class
+					//TODO: This is a bit ugly, but it's the easiest way to do it for now.
+					final InputStream in2 = loadChunk(x, z);
+					if (in2 == null) continue;
+					final NBTReader reader2 = new NBTReader(in2);
+					chunk = nbt.read(reader2, chunkClass);
 				}
 
 				Collections.addAll(blockEntities, chunk.getBlockEntities());
