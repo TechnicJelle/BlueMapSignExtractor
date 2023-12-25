@@ -2,8 +2,8 @@ package com.technicjelle.bluemapsignextractor.common;
 
 import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
+import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
-import de.bluecolored.bluemap.api.markers.POIMarker;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,13 +42,19 @@ public class Core {
 
 				String allMessages = blockEntity.getAllSignMessages();
 				logger.info("Sign:\n" + allMessages);
-				POIMarker marker = POIMarker.builder().label(allMessages.split("\n")[0]).detail("<p style=\"white-space: nowrap;text-align: center;\">" + allMessages.replace("\n", "<br>") + "</p>").position(blockEntity.getPosition()).build();
+				HtmlMarker htmlMarker = HtmlMarker.builder()
+						.label(allMessages.split("\n")[0])
+						.position(blockEntity.getPosition())
+						.html(allMessages.replace("\n", "<br>"))
+						.styleClasses("sign")
+						.maxDistance(16)
+						.build();
 
 				MarkerSet markerSet = map.getMarkerSets().computeIfAbsent("signs", id -> MarkerSet.builder().label("Signs").toggleable(true).defaultHidden(false).build());
 
 				//nice and random key... probably good enough to prevent duplicates
 				String key = allMessages.replace("\n", "") + random.nextInt();
-				markerSet.put(key, marker);
+				markerSet.put(key, htmlMarker);
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region file", e);

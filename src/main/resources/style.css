@@ -1,0 +1,38 @@
+@font-face {
+	font-family: Minecraft;
+	src: url("Minecraft.otf");
+}
+
+.sign {
+	/* Text settings */
+	font-family: Minecraft, sans-serif;
+	font-size: 17px;
+	width: 144px;
+
+	/* Sign texture */
+	background: center / cover no-repeat url("sign_oak.png");
+
+	/* Pixel Scaling filter */
+	-ms-interpolation-mode: nearest-neighbor; /* IE 7+ (non-standard property) */
+	image-rendering: -webkit-crisp-edges; /* Safari 6 - 9 */
+	image-rendering: -moz-crisp-edges; /* Firefox 3.6 - 64 */
+	image-rendering: crisp-edges; /* Firefox 65+ */
+	image-rendering: pixelated; /* Chrome 41+, Edge 76+, Safari 10+ */
+
+	/* Center text */
+	display: grid;
+	place-content: center;
+	text-align: center;
+
+	/* Misc settings */
+	line-height: 1;
+	box-sizing: border-box;
+	aspect-ratio: 24 / 12;
+	white-space: nowrap;
+	transform: translate(-50%, -50%);
+}
+
+.sign p {
+	margin: 0;
+	padding: 0;
+}

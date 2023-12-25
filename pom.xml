@@ -61,6 +61,13 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
+				<includes>
+					<include>**/*.yml</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
 			</resource>
 		</resources>
 	</build>
@@ -85,6 +92,12 @@
 			<groupId>com.github.TechnicJelle</groupId>
 			<artifactId>UpdateCheckerJava</artifactId>
 			<version>v2.3</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.TechnicJelle</groupId>
+			<artifactId>BMUtils</artifactId>
+			<version>v1.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
