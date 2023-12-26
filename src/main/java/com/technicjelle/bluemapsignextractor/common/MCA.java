@@ -108,6 +108,8 @@ public class MCA {
 	}
 
 	private InputStream loadChunk(int chunkX, int chunkZ) throws IOException {
+		@SuppressWarnings("resource")
+		// Resource reference is returned, so it cannot be closed at the end of this method. It should be closed later on.
 		final RandomAccessFile raf = new RandomAccessFile(regionFile.toFile(), "r");
 
 		final int xzChunk = Math.floorMod(chunkZ, 32) * 32 + Math.floorMod(chunkX, 32);
