@@ -60,13 +60,13 @@ public class LoadRegionsTest {
 	}
 
 	private void testMCAFile(String resourcePath, int amountOfSignsToExpect) throws IOException {
-		Path regionFile = Files.createTempFile(null, null);
-		try (InputStream in = LoadRegionsTest.class.getResourceAsStream(resourcePath)) {
+		final Path regionFile = Files.createTempFile(null, null);
+		try (final InputStream in = LoadRegionsTest.class.getResourceAsStream(resourcePath)) {
 			assert in != null;
 			Files.copy(in, regionFile, StandardCopyOption.REPLACE_EXISTING);
 		}
 
-		MCA mca = new MCA(regionFile);
+		final MCA mca = new MCA(regionFile);
 		int signsFound = 0;
 		for (BlockEntity blockEntity : mca.getBlockEntities()) {
 			if (blockEntity.isInvalidSign()) continue;

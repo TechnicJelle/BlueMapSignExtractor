@@ -41,7 +41,7 @@ public class MCA {
 				final NBTReader reader = new NBTReader(in);
 
 				if (chunkClass == null) {
-					ChunkWithVersion chunkWithVersion = getChunkClassFromChunk(x, z);
+					final ChunkWithVersion chunkWithVersion = getChunkClassFromChunk(x, z);
 					if (chunkWithVersion == null) {
 						throw new IOException("Failed to conclude ChunkClass from chunk at " + x + ", " + z);
 					}
@@ -70,15 +70,15 @@ public class MCA {
 	}
 
 	private ChunkWithVersion getChunkClassFromChunk(int x, int z) throws IOException {
-		InputStream in = loadChunk(x, z);
+		final InputStream in = loadChunk(x, z);
 		if (in == null) return null;
-		NBTReader reader = new NBTReader(in);
+		final NBTReader reader = new NBTReader(in);
 
 		return nbt.read(reader, ChunkWithVersion.class);
 	}
 
 	private Class<? extends Chunk> getChunkClassFromDataVersion(int dataVersion) throws IOException {
-		Class<? extends Chunk> chunkClass;
+		final Class<? extends Chunk> chunkClass;
 		if (dataVersion >= 3463) {
 			chunkClass = MC_1_20_4_Chunk.class;
 		} else if (intInRange(dataVersion, 2825, 3337)) {
@@ -108,9 +108,9 @@ public class MCA {
 	}
 
 	private InputStream loadChunk(int chunkX, int chunkZ) throws IOException {
-		RandomAccessFile raf = new RandomAccessFile(regionFile.toFile(), "r");
+		final RandomAccessFile raf = new RandomAccessFile(regionFile.toFile(), "r");
 
-		int xzChunk = Math.floorMod(chunkZ, 32) * 32 + Math.floorMod(chunkX, 32);
+		final int xzChunk = Math.floorMod(chunkZ, 32) * 32 + Math.floorMod(chunkX, 32);
 
 		raf.seek(xzChunk * 4L);
 		int offset = raf.read() << 16;
@@ -118,13 +118,13 @@ public class MCA {
 		offset |= raf.read() & 0xFF;
 		offset *= 4096;
 
-		int size = raf.readByte() * 4096;
+		final int size = raf.readByte() * 4096;
 		if (size == 0) return null;
 
 		raf.seek(offset + 4); // +4 skip chunk size
 
-		byte compressionTypeByte = raf.readByte();
-		Compression compressionType;
+		final byte compressionTypeByte = raf.readByte();
+		final Compression compressionType;
 		switch (compressionTypeByte) {
 			case 1:
 				compressionType = GZIPInputStream::new;
