@@ -22,7 +22,11 @@ public abstract class BlockEntity {
 		return new Vector3d(x + 0.5, y + 0.5, z + 0.5); // center of the block
 	}
 
-	//TODO: Replace with formatIntoHTML(). So that each sign is responsible for generating HTML from/for itself, to put into the BlueMap marker.
-	// This should also remove the need for so many getters everywhere.
-	public abstract String getAllSignMessages();
+	public String getKey() {
+		return "sign@" + getPosition().toString();
+	}
+
+	public abstract String getFormattedHTML();
+
+	public abstract String getLabel();
 }

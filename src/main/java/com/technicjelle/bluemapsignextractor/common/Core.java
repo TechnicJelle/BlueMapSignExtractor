@@ -8,7 +8,6 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -33,28 +32,22 @@ public class Core {
 	private static void processMCA(Logger logger, BlueMapMap map, Path regionFile) {
 		logger.info("Processing region " + regionFile.getFileName().toString());
 
-		Random random = new Random();
-
 		MCA mca = new MCA(regionFile);
 		try {
 			for (BlockEntity blockEntity : mca.getBlockEntities()) {
 				if (blockEntity.isInvalidSign()) continue;
 
-				String allMessages = blockEntity.getAllSignMessages();
-				logger.info("Sign:\n" + allMessages);
 				HtmlMarker htmlMarker = HtmlMarker.builder()
-						.label(allMessages.split("\n")[0])
+						.label(blockEntity.getLabel())
 						.position(blockEntity.getPosition())
-						.html(allMessages.replace("\n", "<br>"))
+						.html(blockEntity.getFormattedHTML())
 						.styleClasses("sign")
 						.maxDistance(16)
 						.build();
 
 				MarkerSet markerSet = map.getMarkerSets().computeIfAbsent("signs", id -> MarkerSet.builder().label("Signs").toggleable(true).defaultHidden(false).build());
 
-				//nice and random key... probably good enough to prevent duplicates
-				String key = allMessages.replace("\n", "") + random.nextInt();
-				markerSet.put(key, htmlMarker);
+				markerSet.put(blockEntity.getKey(), htmlMarker);
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region file", e);

@@ -1,9 +1,5 @@
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
 import com.technicjelle.bluemapsignextractor.common.MCA;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_13_2.MC_1_13_2_Sign;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_14_4.MC_1_14_4_Sign;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_17_1.MC_1_17_1_Sign;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_20_4.MC_1_20_4_Sign;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -60,7 +56,7 @@ public class LoadRegionsTest {
 	@Test
 	public void test_MC_1_20_4() throws IOException {
 		//Chunk [1, 5] in world at (1, 5)
-		testMCAFile("/MC_1_20_4/r.0.0.mca", 6);
+		testMCAFile("/MC_1_20_4/r.0.0.mca", 38);
 	}
 
 	private void testMCAFile(String resourcePath, int amountOfSignsToExpect) throws IOException {
@@ -77,19 +73,12 @@ public class LoadRegionsTest {
 
 			signsFound++;
 
-			if (blockEntity instanceof MC_1_20_4_Sign) {
-				MC_1_20_4_Sign sign = (MC_1_20_4_Sign) blockEntity;
-				System.out.println("1.20.4 Sign:\nPosition:" + sign.getPosition() + "\n" + sign.getAllSignMessages());
-			} else if (blockEntity instanceof MC_1_17_1_Sign) {
-				MC_1_17_1_Sign sign = (MC_1_17_1_Sign) blockEntity;
-				System.out.println("1.17.1 Sign:\nPosition: " + sign.getPosition() + "\nColour: " + sign.getColour() + "\nGlowing: " + sign.isGlowing() + "\n---\n" + sign.getAllSignMessages() + "\n===");
-			} else if (blockEntity instanceof MC_1_14_4_Sign) {
-				MC_1_14_4_Sign sign = (MC_1_14_4_Sign) blockEntity;
-				System.out.println("1.14.4 Sign:\nPosition: " + sign.getPosition() + "\nColour: " + sign.getColour() + "\n---\n" + sign.getAllSignMessages() + "\n===");
-			} else if (blockEntity instanceof MC_1_13_2_Sign) {
-				MC_1_13_2_Sign sign = (MC_1_13_2_Sign) blockEntity;
-				System.out.println("1.13.2 Sign:\nPosition: " + sign.getPosition() + "\n---\n" + sign.getAllSignMessages() + "\n===");
-			}
+			System.out.println(blockEntity.getClass().getSimpleName() + ":\n" +
+					"Key: " + blockEntity.getKey() + "\n" +
+					"Label: " + blockEntity.getLabel() + "\n" +
+					"Position: " + blockEntity.getPosition() + "\n" +
+					blockEntity.getFormattedHTML() +
+					"\n\n");
 		}
 
 		assertEquals(amountOfSignsToExpect, signsFound);

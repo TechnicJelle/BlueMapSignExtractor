@@ -32,7 +32,20 @@
 	transform: translate(-50%, -50%);
 }
 
-.sign p {
+.sign > * {
 	margin: 0;
 	padding: 0;
+	color: black;
+	min-height: 1em;
+}
+
+.glowing {
+	text-shadow: -0.1em -0.1em 0 var(--sign-glow-colour, white),
+	0 -0.1em 0 var(--sign-glow-colour, white),
+	0.1em -0.1em 0 var(--sign-glow-colour, white),
+	0.1em 0 0 var(--sign-glow-colour, white),
+	0.1em 0.1em 0 var(--sign-glow-colour, white),
+	0 0.1em 0 var(--sign-glow-colour, white),
+	-0.1em 0.1em 0 var(--sign-glow-colour, white),
+	-0.1em 0 0 var(--sign-glow-colour, white);
 }
