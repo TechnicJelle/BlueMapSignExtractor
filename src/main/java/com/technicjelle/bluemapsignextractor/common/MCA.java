@@ -32,7 +32,7 @@ public class MCA {
 	}
 
 	public ArrayList<BlockEntity> getBlockEntities() throws IOException {
-		final ArrayList<BlockEntity> blockEntities = new ArrayList<>();
+		final ArrayList<BlockEntity> regionBlockEntities = new ArrayList<>();
 		Class<? extends Chunk> chunkClass = null;
 		for (int z = 0; z < 32; z++) {
 			for (int x = 0; x < 32; x++) {
@@ -62,11 +62,18 @@ public class MCA {
 					chunk = nbt.read(reader2, chunkClass);
 				}
 
-				Collections.addAll(blockEntities, chunk.getBlockEntities());
+				BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
+				if (chunkBlockEntities == null) {
+					throw new IOException("chunkBlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +
+							"\tChunk class: " + chunkClass.getSimpleName() + "\n" +
+							"\tChunk data version: " + chunk.getDataVersion());
+				}
+
+				Collections.addAll(regionBlockEntities, chunkBlockEntities);
 			}
 		}
 
-		return blockEntities;
+		return regionBlockEntities;
 	}
 
 	private ChunkWithVersion getChunkClassFromChunk(int x, int z) throws IOException {

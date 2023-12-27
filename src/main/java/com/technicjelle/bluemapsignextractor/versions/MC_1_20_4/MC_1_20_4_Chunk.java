@@ -11,6 +11,7 @@ public class MC_1_20_4_Chunk extends ChunkWithVersion implements Chunk {
 
 	@Override
 	public BlockEntity[] getBlockEntities() {
+		if (blockEntities == null) System.err.println("no block entities found here");
 		return blockEntities;
 	}
 }
