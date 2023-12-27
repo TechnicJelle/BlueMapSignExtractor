@@ -21,8 +21,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-    - name: Log pom file
-      run: cat /home/runner/work/BlueMapSignExtractor/BlueMapSignExtractor/pom.xml
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Upload a Build Artifact
@@ -31,4 +29,4 @@ jobs:
         path: target/*.jar
     # Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@fcd7eab6b6d22946badc98d1e62665cdee93e0ae
+      uses: advanced-security/maven-dependency-submission-action@v3.0.3
