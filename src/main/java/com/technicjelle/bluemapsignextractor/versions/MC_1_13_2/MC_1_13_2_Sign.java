@@ -20,7 +20,7 @@ public class MC_1_13_2_Sign extends BlockEntity {
 	@NBTName("Text4")
 	protected String text4;
 
-	protected String unJSON(String text) {
+	public static String unJSON(String text) {
 		final SignTextLine signTextLine = new Gson().fromJson(text, SignTextLine.class);
 		return signTextLine.text;
 	}

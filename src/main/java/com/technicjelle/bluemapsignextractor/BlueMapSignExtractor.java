@@ -38,7 +38,6 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 			getLogger().log(Level.SEVERE, "Failed to copy resources to BlueMap webapp!", e);
 		}
 
-
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> Core.loadMarkers(getLogger(), api));
 	};
 

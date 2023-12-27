@@ -57,6 +57,10 @@ public class LoadRegionsTest {
 	public void test_MC_1_20_4() throws IOException {
 		//Chunk [1, 5] in world at (1, 5)
 		testMCAFile("/MC_1_20_4/r.0.0.mca", 38);
+
+		//Chunk file that has been upgraded many times throughout the years.
+		// Thanks to GitHub user @bold-gman for providing this file.
+		testMCAFile("/MC_1_20_4/r.-1.-1.mca", 5);
 	}
 
 	private void testMCAFile(String resourcePath, int amountOfSignsToExpect) throws IOException {

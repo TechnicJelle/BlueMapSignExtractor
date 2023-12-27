@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
 import com.technicjelle.bluemapsignextractor.common.HTMLUtils;
+import com.technicjelle.bluemapsignextractor.versions.MC_1_13_2.MC_1_13_2_Sign;
 import de.bluecolored.bluenbt.NBTName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,11 +21,18 @@ public class MC_1_20_4_Sign extends BlockEntity {
 		private boolean isGlowing;
 
 		public static String unJSON(String text) {
-			final String key = "text";
-			final JsonParser parser = new JsonParser();
+			try {
+				final String key = "text";
+				final JsonParser parser = new JsonParser();
 
-			final JsonObject o = parser.parse("{\"" + key + "\":" + text + "}").getAsJsonObject();
-			return o.get(key).getAsString();
+				final JsonObject o = parser.parse("{\"" + key + "\":" + text + "}").getAsJsonObject();
+				return o.get(key).getAsString();
+			} catch (UnsupportedOperationException e) {
+				System.err.println("Could not parse sign text in the expected 1.20 format, due to a GSON/JSON UnsupportedOperationException on Sign Text:\n" + text + "\n" + "Trying to parse as old format...");
+				final String oldText = MC_1_13_2_Sign.unJSON(text);
+				System.err.println("Successfully parsed as old format:\n" + oldText);
+				return oldText;
+			}
 		}
 
 		public boolean isWrittenOn() {
