@@ -21,6 +21,8 @@ public class MC_1_20_4_Sign extends BlockEntity {
 		private boolean isGlowing;
 
 		public static String unJSON(String text) {
+			//TODO: This text might have extra JSON in it, like colour overrides. Currently we just ignore everything but the text, but perhaps we should parse it properly.
+			// Test `test_MC_1_20_4_SignWithCustomJSON` has an example of this.
 			try {
 				final String key = "text";
 				final JsonParser parser = new JsonParser();
