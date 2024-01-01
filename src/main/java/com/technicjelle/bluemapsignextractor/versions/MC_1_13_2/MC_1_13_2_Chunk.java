@@ -9,6 +9,9 @@ public class MC_1_13_2_Chunk extends ChunkWithVersion implements Chunk {
 	static class Level {
 		@NBTName("TileEntities")
 		public MC_1_13_2_Sign[] tileEntities;
+
+		@NBTName("Status")
+		private String status;
 	}
 
 	@NBTName("Level")
@@ -17,5 +20,10 @@ public class MC_1_13_2_Chunk extends ChunkWithVersion implements Chunk {
 	@Override
 	public BlockEntity[] getBlockEntities() {
 		return level.tileEntities;
+	}
+
+	@Override
+	public boolean isGenerated() {
+		return Chunk.FINISHED_STATUSES.contains(level.status);
 	}
 }

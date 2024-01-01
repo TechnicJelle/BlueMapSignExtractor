@@ -62,6 +62,8 @@ public class MCA {
 					chunk = nbt.read(reader2, chunkClass);
 				}
 
+				if (!chunk.isGenerated()) continue;
+
 				BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 				if (chunkBlockEntities == null) {
 					throw new IOException("chunkBlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +

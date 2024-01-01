@@ -10,8 +10,16 @@ public class MC_1_18_2_Chunk extends ChunkWithVersion implements Chunk {
 	@NBTName("block_entities")
 	private MC_1_17_1_Sign[] blockEntities; //The actual sign format hasn't changed, only the chunk format has
 
+	@NBTName("Status")
+	private String status;
+
 	@Override
 	public BlockEntity[] getBlockEntities() {
 		return blockEntities;
+	}
+
+	@Override
+	public boolean isGenerated() {
+		return Chunk.FINISHED_STATUSES.contains(status);
 	}
 }

@@ -9,9 +9,16 @@ public class MC_1_20_4_Chunk extends ChunkWithVersion implements Chunk {
 	@NBTName("block_entities")
 	private MC_1_20_4_Sign[] blockEntities;
 
+	@NBTName("Status")
+	private String status;
+
 	@Override
 	public BlockEntity[] getBlockEntities() {
-		if (blockEntities == null) System.err.println("no block entities found here");
 		return blockEntities;
+	}
+
+	@Override
+	public boolean isGenerated() {
+		return Chunk.FINISHED_STATUSES.contains(status);
 	}
 }

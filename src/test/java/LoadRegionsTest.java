@@ -76,8 +76,8 @@ public class LoadRegionsTest {
 	public void test_MC_1_20_4_IncompleteChunk() throws IOException {
 		//Chunk files with incompletely generated chunks.
 		// Thanks to GitHub user @bold-gman for providing these files.
-		testMCAFile("/MC_1_20_4/r.-2.5.mca", 1);
-		testMCAFile("/MC_1_20_4/r.-98.8.mca", 1);
+		testMCAFile("/MC_1_20_4/r.-2.5.mca", 0);
+		testMCAFile("/MC_1_20_4/r.-98.8.mca", 0);
 	}
 
 	@Test
