@@ -30,10 +30,7 @@ public class MC_1_20_4_Sign extends BlockEntity {
 				final JsonObject o = parser.parse("{\"" + key + "\":" + text + "}").getAsJsonObject();
 				return o.get(key).getAsString();
 			} catch (UnsupportedOperationException e) {
-				System.err.println("Could not parse sign text in the expected 1.20 format, due to a GSON/JSON UnsupportedOperationException on Sign Text:\n" + text + "\n" + "Trying to parse as old format...");
-				final String oldText = MC_1_13_2_Sign.unJSON(text);
-				System.err.println("Successfully parsed as old format:\n" + oldText);
-				return oldText;
+				return MC_1_13_2_Sign.unJSON(text);
 			}
 		}
 
