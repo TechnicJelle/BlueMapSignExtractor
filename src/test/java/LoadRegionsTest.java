@@ -73,11 +73,14 @@ public class LoadRegionsTest {
 	}
 
 	@Test
-	public void test_MC_1_20_4_IncompleteChunk() throws IOException {
+	public void test_MC_1_20_4_IncompleteChunks() throws IOException {
 		//Chunk files with incompletely generated chunks.
 		// Thanks to GitHub user @bold-gman for providing these files.
 		testMCAFile("/MC_1_20_4/r.-2.5.mca", 0);
 		testMCAFile("/MC_1_20_4/r.-98.8.mca", 0);
+
+		//Chunk files from the Nether with incompletely generated chunks.
+		testRegionFolder("MC_1_20_4/nether");
 	}
 
 	@Test

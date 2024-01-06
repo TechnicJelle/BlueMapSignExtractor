@@ -68,6 +68,8 @@ public class MCA {
 				if (chunkBlockEntities == null) {
 					throw new IOException("chunkBlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +
 							"\tChunk class: " + chunkClass.getSimpleName() + "\n" +
+							"\tChunk generation status: " + chunk.getStatus() + "\n" +
+							"\tChunk is generated: " + chunk.isGenerated() + "\n" +
 							"\tChunk data version: " + chunk.getDataVersion());
 				}
 
