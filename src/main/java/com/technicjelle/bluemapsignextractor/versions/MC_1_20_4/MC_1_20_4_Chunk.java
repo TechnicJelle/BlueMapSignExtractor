@@ -18,7 +18,7 @@ public class MC_1_20_4_Chunk extends ChunkWithVersion implements Chunk {
 	}
 
 	@Override
-	public boolean isGenerated() {
-		return Chunk.FINISHED_STATUSES.contains(status);
+	public String getStatus() {
+		return status;
 	}
 }

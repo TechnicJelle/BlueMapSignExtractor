@@ -22,5 +22,13 @@ public interface Chunk {
 
 	int getDataVersion();
 
-	boolean isGenerated();
+	String getStatus();
+
+	default boolean isGenerated() {
+		String status = getStatus();
+		boolean finished = Chunk.FINISHED_STATUSES.contains(status);
+		if (finished && getBlockEntities() == null)
+			throw new IllegalStateException("Chunk is considered finished enough, but still has no block entities! Status: " + status);
+		return finished;
+	}
 }

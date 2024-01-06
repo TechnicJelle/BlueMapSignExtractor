@@ -23,7 +23,7 @@ public class MC_1_13_2_Chunk extends ChunkWithVersion implements Chunk {
 	}
 
 	@Override
-	public boolean isGenerated() {
-		return Chunk.FINISHED_STATUSES.contains(level.status);
+	public String getStatus() {
+		return level.status;
 	}
 }
