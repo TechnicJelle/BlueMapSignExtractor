@@ -2,6 +2,7 @@ package com.technicjelle.bluemapsignextractor.versions.MC_1_13_2;
 
 import com.google.gson.Gson;
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
+import com.technicjelle.bluemapsignextractor.common.SignColour;
 import com.technicjelle.bluemapsignextractor.common.HTMLUtils;
 import de.bluecolored.bluenbt.NBTName;
 
@@ -27,10 +28,10 @@ public class MC_1_13_2_Sign extends BlockEntity {
 
 	@Override
 	public String getFormattedHTML() {
-		return HTMLUtils.formatSignLineToHTML(unJSON(text1), "black", false) + "\n" +
-				HTMLUtils.formatSignLineToHTML(unJSON(text2), "black", false) + "\n" +
-				HTMLUtils.formatSignLineToHTML(unJSON(text3), "black", false) + "\n" +
-				HTMLUtils.formatSignLineToHTML(unJSON(text4), "black", false);
+		return HTMLUtils.formatSignLineToHTML(unJSON(text1), SignColour.BLACK, false) + "\n" +
+				HTMLUtils.formatSignLineToHTML(unJSON(text2), SignColour.BLACK, false) + "\n" +
+				HTMLUtils.formatSignLineToHTML(unJSON(text3), SignColour.BLACK, false) + "\n" +
+				HTMLUtils.formatSignLineToHTML(unJSON(text4), SignColour.BLACK, false);
 	}
 
 	@Override
