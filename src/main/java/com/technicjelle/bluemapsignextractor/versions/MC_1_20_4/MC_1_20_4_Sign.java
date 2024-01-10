@@ -3,6 +3,7 @@ package com.technicjelle.bluemapsignextractor.versions.MC_1_20_4;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
+import com.technicjelle.bluemapsignextractor.common.SignColour;
 import com.technicjelle.bluemapsignextractor.common.HTMLUtils;
 import com.technicjelle.bluemapsignextractor.versions.MC_1_13_2.MC_1_13_2_Sign;
 import de.bluecolored.bluenbt.NBTName;
@@ -46,7 +47,7 @@ public class MC_1_20_4_Sign extends BlockEntity {
 		public String getFormattedHTML() {
 			final StringBuilder sb = new StringBuilder();
 			for (String message : messages) {
-				sb.append(HTMLUtils.formatSignLineToHTML(unJSON(message), colour, isGlowing)).append("\n");
+				sb.append(HTMLUtils.formatSignLineToHTML(unJSON(message), SignColour.get(colour), isGlowing)).append("\n");
 			}
 			return sb.toString();
 		}
