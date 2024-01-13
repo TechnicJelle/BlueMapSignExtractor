@@ -93,6 +93,11 @@ public class LoadRegionsTest {
 		testRegionFolder("MC_1_20_4/region_flat_world");
 	}
 
+	@Test
+	public void test_MC_1_20_4_ZeroByteRegion() throws IOException {
+		testMCAFile("/MC_1_20_4/r.-15.18.mca", 0);
+	}
+
 	/// -------------- ///
 	/// Helper methods ///
 	/// -------------- ///
