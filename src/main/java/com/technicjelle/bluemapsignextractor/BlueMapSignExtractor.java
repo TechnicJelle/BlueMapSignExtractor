@@ -1,6 +1,6 @@
 package com.technicjelle.bluemapsignextractor;
 
-import com.technicjelle.BMUtils;
+import com.technicjelle.BMCopy;
 import com.technicjelle.UpdateChecker;
 import com.technicjelle.bluemapsignextractor.common.Core;
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -31,9 +31,9 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 		updateChecker.logUpdateMessage(getLogger());
 
 		try {
-			BMUtils.copyJarResourceToBlueMap(api, getClassLoader(), "style.css", "bmse.css", false);
-			BMUtils.copyJarResourceToBlueMap(api, getClassLoader(), "Minecraft.otf", "Minecraft.otf", false);
-			BMUtils.copyJarResourceToBlueMap(api, getClassLoader(), "sign_oak.png", "sign_oak.png", false);
+			BMCopy.jarResourceToWebApp(api, getClassLoader(), "style.css", "bmse.css", false);
+			BMCopy.jarResourceToWebApp(api, getClassLoader(), "Minecraft.otf", "Minecraft.otf", false);
+			BMCopy.jarResourceToWebApp(api, getClassLoader(), "sign_oak.png", "sign_oak.png", false);
 		} catch (IOException e) {
 			getLogger().log(Level.SEVERE, "Failed to copy resources to BlueMap webapp!", e);
 		}
