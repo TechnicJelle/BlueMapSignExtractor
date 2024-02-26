@@ -14,3 +14,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      - dependency-name: "advanced-security/maven-dependency-submission-action"
+        versions: [ "4.0.1" ]
+
