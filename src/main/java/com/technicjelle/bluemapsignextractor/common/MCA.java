@@ -89,6 +89,7 @@ public class MCA {
 	}
 
 	private Class<? extends Chunk> getChunkClassFromDataVersion(int dataVersion) throws IOException {
+		//https://minecraft.wiki/w/Data_version#List_of_data_versions
 		final Class<? extends Chunk> chunkClass;
 		if (dataVersion >= 3463) {
 			chunkClass = MC_1_20_4_Chunk.class;
@@ -107,8 +108,10 @@ public class MCA {
 			chunkClass = MC_1_14_4_Chunk.class;
 		} else if (intInRange(dataVersion, 1444, 1631)) {
 			chunkClass = MC_1_13_2_Chunk.class;
+		} else if (dataVersion < 1444) {
+			throw new IOException("Chunk DataVersion (" + dataVersion + ") is too old! Please upgrade your chunks to at least 1.13.2");
 		} else {
-			throw new IOException("Unknown data version: " + dataVersion);
+			throw new IOException("Unsupported Chunk DataVersion: " + dataVersion);
 		}
 
 		return chunkClass;
