@@ -30,7 +30,7 @@ public class Core {
 	}
 
 	private static void processMCA(Logger logger, BlueMapMap map, Path regionFile) {
-		logger.info("Processing region " + regionFile.getFileName().toString());
+		logger.fine("Processing region " + regionFile.getFileName().toString());
 
 		final MCA mca = new MCA(regionFile);
 		try {
