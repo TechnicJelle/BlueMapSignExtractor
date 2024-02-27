@@ -1,10 +1,5 @@
 package com.technicjelle.bluemapsignextractor.common;
 
-import com.technicjelle.bluemapsignextractor.versions.MC_1_13_2.MC_1_13_2_Chunk;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_14_4.MC_1_14_4_Chunk;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_17_1.MC_1_17_1_Chunk;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_18_2.MC_1_18_2_Chunk;
-import com.technicjelle.bluemapsignextractor.versions.MC_1_20_4.MC_1_20_4_Chunk;
 import de.bluecolored.bluenbt.BlueNBT;
 import de.bluecolored.bluenbt.NBTReader;
 
@@ -33,44 +28,48 @@ public class MCA {
 
 	public ArrayList<BlockEntity> getBlockEntities() throws IOException {
 		final ArrayList<BlockEntity> regionBlockEntities = new ArrayList<>();
-		Class<? extends Chunk> chunkClass = null;
+		ChunkClass chunkClass = null;
 		for (int z = 0; z < 32; z++) {
 			for (int x = 0; x < 32; x++) {
 				final InputStream in = loadChunk(x, z);
 				if (in == null) continue;
 				final NBTReader reader = new NBTReader(in);
 
-				if (chunkClass == null) {
+				if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
 					final ChunkWithVersion chunkWithVersion = getChunkClassFromChunk(x, z);
 					if (chunkWithVersion == null) {
-						throw new IOException("Failed to conclude ChunkClass from chunk at " + x + ", " + z);
+						throw new IOException("Failed to conclude ChunkClass from chunk at " + x + ", " + z + " in region file " + regionFile.toAbsolutePath());
 					}
-					chunkClass = getChunkClassFromDataVersion(chunkWithVersion.getDataVersion());
+					chunkClass = ChunkClass.getFromDataVersion(chunkWithVersion.getDataVersion());
 				}
 
-				Chunk chunk = nbt.read(reader, chunkClass);
-				final Class<? extends Chunk> newChunkClass = getChunkClassFromDataVersion(chunk.getDataVersion());
+				Chunk chunk = nbt.read(reader, chunkClass.getJavaType());
+				final ChunkClass newChunkClass = ChunkClass.getFromDataVersion(chunk.getDataVersion());
 
-				if (newChunkClass != chunkClass) {
-					System.err.println("Chunk at " + x + ", " + z + " has a different data version than the first chunk in this region file. Switching...");
+				//Check if current chunk needs a different loader than the previous chunk
+				if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
+//					System.out.println("Chunk at " + x + ", " + z + " has a significantly different data version (" + newChunkClass.getDataVersion() + ") " +
+//							"than the previous chunk (" + chunkClass.getDataVersion() + ") in this region file.\n" +
+//							"\tSwitching loader from " + chunkClass.getTypeName() + " to " + newChunkClass.getTypeName() + "...");
 					chunkClass = newChunkClass;
 					//Load chunk again, with the new class
 					//TODO: This is a bit ugly, but it's the easiest way to do it for now.
 					final InputStream in2 = loadChunk(x, z);
 					if (in2 == null) continue;
 					final NBTReader reader2 = new NBTReader(in2);
-					chunk = nbt.read(reader2, chunkClass);
+					chunk = nbt.read(reader2, chunkClass.getJavaType());
 				}
+
+//				System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
 
 				if (!chunk.isGenerated()) continue;
 
 				BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 				if (chunkBlockEntities == null) {
-					throw new IOException("chunkBlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +
-							"\tChunk class: " + chunkClass.getSimpleName() + "\n" +
-							"\tChunk generation status: " + chunk.getStatus() + "\n" +
-							"\tChunk is generated: " + chunk.isGenerated() + "\n" +
-							"\tChunk data version: " + chunk.getDataVersion());
+					throw new IOException("Chunk's BlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +
+							"\t\tChunk class: " + chunkClass + "\n" +
+							"\t\tChunk generation status: " + chunk.getStatus() + "\n" +
+							"\t\tChunk is generated: " + chunk.isGenerated());
 				}
 
 				Collections.addAll(regionBlockEntities, chunkBlockEntities);
@@ -86,39 +85,6 @@ public class MCA {
 		final NBTReader reader = new NBTReader(in);
 
 		return nbt.read(reader, ChunkWithVersion.class);
-	}
-
-	private Class<? extends Chunk> getChunkClassFromDataVersion(int dataVersion) throws IOException {
-		//https://minecraft.wiki/w/Data_version#List_of_data_versions
-		final Class<? extends Chunk> chunkClass;
-		if (dataVersion >= 3463) {
-			chunkClass = MC_1_20_4_Chunk.class;
-		} else if (intInRange(dataVersion, 2825, 3337)) {
-			//For versions:
-			// - 1.18.2
-			// - 1.19.4
-			chunkClass = MC_1_18_2_Chunk.class;
-		} else if (intInRange(dataVersion, 2724, 2730)) {
-			chunkClass = MC_1_17_1_Chunk.class;
-		} else if (intInRange(dataVersion, 1901, 2586)) {
-			//For versions:
-			// - 1.14.4
-			// - 1.15.2
-			// - 1.16.5
-			chunkClass = MC_1_14_4_Chunk.class;
-		} else if (intInRange(dataVersion, 1444, 1631)) {
-			chunkClass = MC_1_13_2_Chunk.class;
-		} else if (dataVersion < 1444) {
-			throw new IOException("Chunk DataVersion (" + dataVersion + ") is too old! Please upgrade your chunks to at least 1.13.2");
-		} else {
-			throw new IOException("Unsupported Chunk DataVersion: " + dataVersion);
-		}
-
-		return chunkClass;
-	}
-
-	private static boolean intInRange(int value, int min, int max) {
-		return value >= min && value <= max;
 	}
 
 	private InputStream loadChunk(int chunkX, int chunkZ) throws IOException {
