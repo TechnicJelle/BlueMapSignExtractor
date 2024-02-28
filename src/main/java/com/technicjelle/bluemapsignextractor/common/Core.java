@@ -1,6 +1,5 @@
 package com.technicjelle.bluemapsignextractor.common;
 
-import de.bluecolored.bluemap.api.BlueMapAPI;
 import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
@@ -8,25 +7,24 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class Core {
-	public static void loadMarkers(Logger logger, BlueMapAPI api) {
-		for (BlueMapMap map : api.getMaps()) {
-			final Path saveFolder = map.getWorld().getSaveFolder();
-			logger.info("Map: " + map.getId() + " " + saveFolder);
-			final Path regionFolder = saveFolder.resolve("region");
+	public static void loadMarkersFromWorld(Logger logger, Path regionFolder, Collection<BlueMapMap> maps) {
+		for (BlueMapMap map : maps) {
+			final String currentMapPrefix = "Map \"" + map.getId() + "\" (" + regionFolder + "): ";
+			logger.info(currentMapPrefix + "Loading signs into markers...");
 
 			try (final Stream<Path> stream = Files.list(regionFolder)) {
 				stream.filter(path -> path.toString().endsWith(".mca")).forEach(path -> processMCA(logger, map, path));
 			} catch (IOException e) {
 				logger.log(Level.SEVERE, "Error reading region folder", e);
 			}
+			logger.info(currentMapPrefix + "Finished loading signs into markers!");
 		}
-
-		logger.info("Finished loading signs into markers");
 	}
 
 	private static void processMCA(Logger logger, BlueMapMap map, Path regionFile) {
