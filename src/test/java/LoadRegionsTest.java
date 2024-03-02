@@ -5,67 +5,65 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 
-@SuppressWarnings({"CallToPrintStackTrace", "SameParameterValue"})
+@SuppressWarnings("CallToPrintStackTrace")
 public class LoadRegionsTest {
 	@Test
-	public void test_MC_1_13_2() throws IOException {
+	public void test_MC_1_13_2() {
 		//Chunk [20, 13] in world at (-12, 13)
 		testMCAFile("/MC_1_13_2/r.-1.0.mca", 1);
 	}
 
 	@Test
-	public void test_MC_1_14_4() throws IOException {
+	public void test_MC_1_14_4() {
 		//Chunk [28, 7] in world at (-4, 7)
 		testMCAFile("/MC_1_14_4/r.-1.0.mca", 2);
 	}
 
 	@Test
-	public void test_MC_1_15_2() throws IOException {
+	public void test_MC_1_15_2() {
 		//Chunk [22, 15] in world at (-10, 15)
 		testMCAFile("/MC_1_15_2/r.-1.0.mca", 1);
 	}
 
 	@Test
-	public void test_MC_1_16_5() throws IOException {
+	public void test_MC_1_16_5() {
 		//Chunk [0, 31] in world at (0, -1)
 		testMCAFile("/MC_1_16_5/r.0.-1.mca", 1);
 	}
 
 	@Test
-	public void test_MC_1_17_1() throws IOException {
+	public void test_MC_1_17_1() {
 		//Chunk [16, 16] in world at (-16, -16)
 		testMCAFile("/MC_1_17_1/r.-1.-1.mca", 2);
 	}
 
 	@Test
-	public void test_MC_1_18_2() throws IOException {
+	public void test_MC_1_18_2() {
 		//Chunk [1, 27] in world at (-31, -37)
 		testMCAFile("/MC_1_18_2/r.-1.-2.mca", 1);
 	}
 
 	@Test
-	public void test_MC_1_19_4() throws IOException {
+	public void test_MC_1_19_4() {
 		//Chunk [30, 2] in world at (-2, -2)
 		testMCAFile("/MC_1_19_4/r.-1.0.mca", 1);
 	}
 
 	@Test
-	public void test_MC_1_20_4_Normal() throws IOException {
+	public void test_MC_1_20_4_Normal() {
 		//Chunk [1, 5] in world at (1, 5)
 		testMCAFile("/MC_1_20_4/r.0.0.mca", 38);
 	}
 
 	@Test
-	public void test_MC_1_20_4_Upgraded() throws IOException {
+	public void test_MC_1_20_4_Upgraded() {
 		//Chunk files that have been upgraded many times throughout the years.
 		// Thanks to GitHub user @bold-gman for providing these files.
 		testMCAFile("/MC_1_20_4/r.-1.-1.mca", 5);
@@ -73,7 +71,7 @@ public class LoadRegionsTest {
 	}
 
 	@Test
-	public void test_MC_1_20_4_IncompleteChunks() throws IOException {
+	public void test_MC_1_20_4_IncompleteChunks() {
 		//Chunk files with incompletely generated chunks.
 		// Thanks to GitHub user @bold-gman for providing these files.
 		testMCAFile("/MC_1_20_4/r.-2.5.mca", 0);
@@ -94,7 +92,7 @@ public class LoadRegionsTest {
 	}
 
 	@Test
-	public void test_MC_1_20_4_ZeroByteRegion() throws IOException {
+	public void test_MC_1_20_4_ZeroByteRegion() {
 		testMCAFile("/MC_1_20_4/r.-15.18.mca", 0);
 	}
 
@@ -119,7 +117,7 @@ public class LoadRegionsTest {
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
 			stream.filter(path -> path.toString().endsWith(".mca")).forEach(resourcePath -> testMCAFile(resourcePath, null));
 		} catch (IOException e) {
-			System.err.println("Error reading region folder");
+			System.err.println("Error reading region folder:");
 			e.printStackTrace();
 		}
 	}
@@ -128,13 +126,8 @@ public class LoadRegionsTest {
 	 * @param resourcePath          The path to the region file to test
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
-	private void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) throws IOException {
-		final Path regionFile = Files.createTempFile(null, null);
-		try (final InputStream in = LoadRegionsTest.class.getResourceAsStream(resourcePath)) {
-			assert in != null;
-			Files.copy(in, regionFile, StandardCopyOption.REPLACE_EXISTING);
-		}
-
+	private void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
+		Path regionFile = Paths.get("").resolve("src/test/resources/" + resourcePath);
 		testMCAFile(regionFile, expectedAmountOfSigns);
 	}
 
@@ -161,7 +154,7 @@ public class LoadRegionsTest {
 						"\n\n");
 			}
 		} catch (IOException e) {
-			System.err.println("Error reading region file");
+			System.err.println("Error reading region file:");
 			e.printStackTrace();
 		}
 
