@@ -98,6 +98,14 @@ public class LoadRegionsTest {
 		testMCAFile("/MC_1_20_4/r.-15.18.mca", 0);
 	}
 
+	@Test
+	public void test_MC_1_20_4_DifferentDataVersions() {
+		//Chunk file with chunks of different data versions.
+		// Thanks to Discord user @alanzucconi for providing this file.
+
+		testMCAFile("/MC_1_20_4/r.-1.-2.mca", 4);
+	}
+
 	/// -------------- ///
 	/// Helper methods ///
 	/// -------------- ///
