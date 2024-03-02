@@ -101,6 +101,9 @@ public class LoadRegionsTest {
 		//Chunk file with chunks of different data versions.
 		// Thanks to Discord user @alanzucconi for providing this file.
 
+		//Chunks often switch between data version 3117 and 3463 in this region file.
+		// This causes the chunk loader to switch between MC_1_20_4_Chunk and MC_1_18_2_Chunk.
+		// There are sadly no different sign versions in this region file; only MC_1_17_1 signs (due to MC_1_18_2_Chunk).
 		testMCAFile("/MC_1_20_4/r.-1.-2.mca", 4);
 	}
 
