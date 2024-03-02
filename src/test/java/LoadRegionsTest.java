@@ -114,7 +114,7 @@ public class LoadRegionsTest {
 	/**
 	 * @param regionFolderName The name of the folder in src/test/resources to test the region files in
 	 */
-	private void testRegionFolder(final String regionFolderName) {
+	public static void testRegionFolder(final String regionFolderName) {
 		Path regionFolder = Paths.get("").resolve("src/test/resources/" + regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
@@ -129,7 +129,7 @@ public class LoadRegionsTest {
 	 * @param resourcePath          The path to the region file to test
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
-	private void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
+	public static void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
 		Path regionFile = Paths.get("").resolve("src/test/resources/" + resourcePath);
 		testMCAFile(regionFile, expectedAmountOfSigns);
 	}
@@ -138,7 +138,7 @@ public class LoadRegionsTest {
 	 * @param regionFile            The region file to test
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
-	private void testMCAFile(@NotNull Path regionFile, @Nullable Integer expectedAmountOfSigns) {
+	public static void testMCAFile(@NotNull Path regionFile, @Nullable Integer expectedAmountOfSigns) {
 		System.out.println("Processing region " + regionFile.getFileName().toString());
 		final MCA mca = new MCA(regionFile);
 		int signsFound = 0;
