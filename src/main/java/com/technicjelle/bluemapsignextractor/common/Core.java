@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 
 public class Core {
 	public static void loadMarkersFromWorld(Logger logger, Path regionFolder, Collection<BlueMapMap> maps) {
+		//TODO: Do not loop over every map, but loop over every world.
+		// Share a single MarkerSet for all of a world's maps.
+		// Right now it loops over the same world twice if there are multiple maps for it.
 		for (BlueMapMap map : maps) {
 			final String currentMapPrefix = "Map \"" + map.getId() + "\" (" + regionFolder + "): ";
 			logger.info(currentMapPrefix + "Loading signs into markers...");
