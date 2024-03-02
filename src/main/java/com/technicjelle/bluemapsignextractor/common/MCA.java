@@ -1,24 +1,25 @@
+//Adapted a lot from https://github.com/TBlueF/NBTLibraryComparison/blob/f1e0c878ec91bc99c385e32a7b38d8380e02583c/src/main/java/de/bluecolored/nbtlibtest/NBTLibrary.java
 package com.technicjelle.bluemapsignextractor.common;
 
 import de.bluecolored.bluenbt.BlueNBT;
-import de.bluecolored.bluenbt.NBTReader;
 
-import java.io.FileInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.InflaterInputStream;
 
 public class MCA {
 	private static final BlueNBT nbt = new BlueNBT();
-
-	interface Compression {
-		InputStream decompress(InputStream in) throws IOException;
-	}
 
 	final Path regionFile;
 
@@ -26,100 +27,130 @@ public class MCA {
 		this.regionFile = regionFile;
 	}
 
-	public ArrayList<BlockEntity> getBlockEntities() throws IOException {
+	public Collection<BlockEntity> getBlockEntities() throws IOException {
+		if (Files.notExists(regionFile)) return Collections.emptyList();
+
+		long fileLength = Files.size(regionFile);
+		if (fileLength == 0) return Collections.emptyList();
+
 		final ArrayList<BlockEntity> regionBlockEntities = new ArrayList<>();
-		ChunkClass chunkClass = null;
-		for (int z = 0; z < 32; z++) {
-			for (int x = 0; x < 32; x++) {
-				final InputStream in = loadChunk(x, z);
-				if (in == null) continue;
-				final NBTReader reader = new NBTReader(in);
+		try (FileChannel channel = FileChannel.open(regionFile, StandardOpenOption.READ)) {
+			byte[] header = new byte[1024 * 8];
+			byte[] chunkDataBuffer = null;
 
-				if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
-					final ChunkWithVersion chunkWithVersion = getChunkClassFromChunk(x, z);
-					if (chunkWithVersion == null) {
-						throw new IOException("Failed to conclude ChunkClass from chunk at " + x + ", " + z + " in region file " + regionFile.toAbsolutePath());
+			// read the header
+			readFully(channel, header, 0, header.length);
+
+			// iterate over all chunks
+			ChunkClass chunkClass = null;
+			for (int z = 0; z < 32; z++) {
+				for (int x = 0; x < 32; x++) {
+					int xzChunk = z * 32 + x;
+
+					int size = header[xzChunk * 4 + 3] * 4096;
+					if (size == 0) continue;
+
+					int i = xzChunk * 4;
+					int offset = header[i++] << 16;
+					offset |= (header[i++] & 0xFF) << 8;
+					offset |= header[i] & 0xFF;
+					offset *= 4096;
+
+					if (chunkDataBuffer == null || chunkDataBuffer.length < size)
+						chunkDataBuffer = new byte[size];
+
+					if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
+						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, channel, offset, size, chunkDataBuffer);
+						if (chunkWithVersion == null) {
+							throw new IOException("Failed to conclude ChunkClass from chunk at " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath());
+						}
+						chunkClass = ChunkClass.getFromDataVersion(chunkWithVersion.getDataVersion());
 					}
-					chunkClass = ChunkClass.getFromDataVersion(chunkWithVersion.getDataVersion());
+
+					Chunk chunk = loadChunk(chunkClass.getJavaType(), channel, offset, size, chunkDataBuffer);
+					final ChunkClass newChunkClass = ChunkClass.getFromDataVersion(chunk.getDataVersion());
+
+					//Check if current chunk needs a different loader than the previous chunk
+					if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
+//						System.out.println("Chunk at " + padLeft(x) + ", " + padLeft(z) + " has a significantly different data version (" + newChunkClass.getDataVersion() + ") " +
+//								"than the previous chunk (" + chunkClass.getDataVersion() + ") in this region file.\n" +
+//								"\tSwitching loader from " + chunkClass.getTypeName() + " to " + newChunkClass.getTypeName() + "...");
+						chunkClass = newChunkClass;
+						//Load chunk again, with the new class
+						chunk = loadChunk(chunkClass.getJavaType(), channel, offset, size, chunkDataBuffer);
+					}
+
+//					System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
+
+					if (!chunk.isGenerated()) continue;
+
+					BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
+					if (chunkBlockEntities == null) {
+						throw new IOException("Chunk's BlockEntities was null in chunk " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" +
+								"\t\tChunk class: " + chunkClass + "\n" +
+								"\t\tChunk generation status: " + chunk.getStatus() + "\n" +
+								"\t\tChunk is generated: " + chunk.isGenerated());
+					}
+
+					Collections.addAll(regionBlockEntities, chunkBlockEntities);
 				}
-
-				Chunk chunk = nbt.read(reader, chunkClass.getJavaType());
-				final ChunkClass newChunkClass = ChunkClass.getFromDataVersion(chunk.getDataVersion());
-
-				//Check if current chunk needs a different loader than the previous chunk
-				if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
-//					System.out.println("Chunk at " + x + ", " + z + " has a significantly different data version (" + newChunkClass.getDataVersion() + ") " +
-//							"than the previous chunk (" + chunkClass.getDataVersion() + ") in this region file.\n" +
-//							"\tSwitching loader from " + chunkClass.getTypeName() + " to " + newChunkClass.getTypeName() + "...");
-					chunkClass = newChunkClass;
-					//Load chunk again, with the new class
-					//TODO: This is a bit ugly, but it's the easiest way to do it for now.
-					final InputStream in2 = loadChunk(x, z);
-					if (in2 == null) continue;
-					final NBTReader reader2 = new NBTReader(in2);
-					chunk = nbt.read(reader2, chunkClass.getJavaType());
-				}
-
-//				System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
-
-				if (!chunk.isGenerated()) continue;
-
-				BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
-				if (chunkBlockEntities == null) {
-					throw new IOException("Chunk's BlockEntities was null in chunk " + x + ", " + z + " in region file " + regionFile.toAbsolutePath() + "\n" +
-							"\t\tChunk class: " + chunkClass + "\n" +
-							"\t\tChunk generation status: " + chunk.getStatus() + "\n" +
-							"\t\tChunk is generated: " + chunk.isGenerated());
-				}
-
-				Collections.addAll(regionBlockEntities, chunkBlockEntities);
 			}
 		}
 
 		return regionBlockEntities;
 	}
 
-	private ChunkWithVersion getChunkClassFromChunk(int x, int z) throws IOException {
-		final InputStream in = loadChunk(x, z);
-		if (in == null) return null;
-		final NBTReader reader = new NBTReader(in);
+	private static final String format = "%1$2s";
 
-		return nbt.read(reader, ChunkWithVersion.class);
+	public static String padLeft(int i) {
+		return String.format(format, i);
 	}
 
-	private InputStream loadChunk(int chunkX, int chunkZ) throws IOException {
-		@SuppressWarnings("resource")
-		// Resource reference is returned, so it cannot be closed at the end of this method. It should be closed later on.
-		final RandomAccessFile raf = new RandomAccessFile(regionFile.toFile(), "r");
+	private static <T> T loadChunk(Class<T> type, FileChannel channel, int offset, int size, byte[] dataBuffer) throws IOException {
+		channel.position(offset);
+		readFully(channel, dataBuffer, 0, size);
 
-		if (raf.length() == 0) return null; // Skip empty files
-
-		final int xzChunk = Math.floorMod(chunkZ, 32) * 32 + Math.floorMod(chunkX, 32);
-
-		raf.seek(xzChunk * 4L);
-		int offset = raf.read() << 16;
-		offset |= (raf.read() & 0xFF) << 8;
-		offset |= raf.read() & 0xFF;
-		offset *= 4096;
-
-		final int size = raf.readByte() * 4096;
-		if (size == 0) return null;
-
-		raf.seek(offset + 4); // +4 skip chunk size
-
-		final byte compressionTypeByte = raf.readByte();
-		final Compression compressionType;
-		switch (compressionTypeByte) {
+		int compressionTypeId = dataBuffer[4];
+		Compression compression;
+		switch (compressionTypeId) {
+			case 0:
+			case 3:
+				compression = Compression.NONE;
+				break;
 			case 1:
-				compressionType = GZIPInputStream::new;
+				compression = Compression.GZIP;
 				break;
 			case 2:
-				compressionType = InflaterInputStream::new;
+				compression = Compression.DEFLATE;
 				break;
 			default:
-				throw new IOException("Unknown compression type: " + compressionTypeByte);
+				throw new IOException("Unknown chunk compression-id: " + compressionTypeId);
 		}
 
-		return compressionType.decompress(new FileInputStream(raf.getFD()));
+		try (InputStream in = new BufferedInputStream(compression.decompress(new ByteArrayInputStream(dataBuffer, 5, size - 5)))) {
+			return loadChunk(type, in);
+		}
+	}
+
+	private static <T> T loadChunk(Class<T> type, InputStream in) throws IOException {
+		return nbt.read(in, type);
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	private static void readFully(ReadableByteChannel src, byte[] dst, int off, int len) throws IOException {
+		readFully(src, ByteBuffer.wrap(dst), off, len);
+	}
+
+	private static void readFully(ReadableByteChannel src, ByteBuffer bb, int off, int len) throws IOException {
+		int limit = off + len;
+		if (limit > bb.capacity()) throw new IllegalArgumentException("buffer too small");
+
+		bb.limit(limit);
+		bb.position(off);
+
+		do {
+			int read = src.read(bb);
+			if (read < 0) throw new EOFException();
+		} while (bb.remaining() > 0);
 	}
 }
