@@ -1,11 +1,33 @@
-//Adapted a lot from https://github.com/TBlueF/NBTLibraryComparison/blob/f1e0c878ec91bc99c385e32a7b38d8380e02583c/src/main/java/de/bluecolored/nbtlibtest/NBTLibrary.java
+/*
+ * This file is part of BlueMap, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) Blue (Lukas Rieger) <https://bluecolored.de>
+ * Copyright (c) contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.technicjelle.bluemapsignextractor.common;
 
 import de.bluecolored.bluenbt.BlueNBT;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -18,12 +40,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class MCA {
+public class MCARegion {
+	public static final String FILE_SUFFIX = ".mca";
+
 	private static final BlueNBT nbt = new BlueNBT();
 
-	final Path regionFile;
+	private final Path regionFile;
 
-	public MCA(Path regionFile) {
+	public MCARegion(Path regionFile) {
 		this.regionFile = regionFile;
 	}
 
@@ -45,7 +69,7 @@ public class MCA {
 			ChunkClass chunkClass = null;
 			for (int z = 0; z < 32; z++) {
 				for (int x = 0; x < 32; x++) {
-					int xzChunk = z * 32 + x;
+					int xzChunk = (z & 0b11111) << 5 | (x & 0b11111);
 
 					int size = header[xzChunk * 4 + 3] * 4096;
 					if (size == 0) continue;
@@ -59,15 +83,18 @@ public class MCA {
 					if (chunkDataBuffer == null || chunkDataBuffer.length < size)
 						chunkDataBuffer = new byte[size];
 
+					channel.position(offset);
+					readFully(channel, chunkDataBuffer, 0, size);
+
 					if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
-						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, channel, offset, size, chunkDataBuffer);
+						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, chunkDataBuffer, size);
 						if (chunkWithVersion == null) {
 							throw new IOException("Failed to conclude ChunkClass from chunk at " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath());
 						}
 						chunkClass = ChunkClass.getFromDataVersion(chunkWithVersion.getDataVersion());
 					}
 
-					Chunk chunk = loadChunk(chunkClass.getJavaType(), channel, offset, size, chunkDataBuffer);
+					Chunk chunk = loadChunk(chunkClass.getJavaType(), chunkDataBuffer, size);
 					final ChunkClass newChunkClass = ChunkClass.getFromDataVersion(chunk.getDataVersion());
 
 					//Check if current chunk needs a different loader than the previous chunk
@@ -77,7 +104,7 @@ public class MCA {
 //								"\tSwitching loader from " + chunkClass.getTypeName() + " to " + newChunkClass.getTypeName() + "...");
 						chunkClass = newChunkClass;
 						//Load chunk again, with the new class
-						chunk = loadChunk(chunkClass.getJavaType(), channel, offset, size, chunkDataBuffer);
+						chunk = loadChunk(chunkClass.getJavaType(), chunkDataBuffer, size);
 					}
 
 //					System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
@@ -106,11 +133,8 @@ public class MCA {
 		return String.format(format, i);
 	}
 
-	private static <T> T loadChunk(Class<T> type, FileChannel channel, int offset, int size, byte[] dataBuffer) throws IOException {
-		channel.position(offset);
-		readFully(channel, dataBuffer, 0, size);
-
-		int compressionTypeId = dataBuffer[4];
+	private static <T> T loadChunk(Class<T> type, byte[] data, int size) throws IOException {
+		int compressionTypeId = data[4];
 		Compression compression;
 		switch (compressionTypeId) {
 			case 0:
@@ -127,7 +151,7 @@ public class MCA {
 				throw new IOException("Unknown chunk compression-id: " + compressionTypeId);
 		}
 
-		try (InputStream in = new BufferedInputStream(compression.decompress(new ByteArrayInputStream(dataBuffer, 5, size - 5)))) {
+		try (InputStream in = new BufferedInputStream(compression.decompress(new ByteArrayInputStream(data, 5, size - 5)))) {
 			return loadChunk(type, in);
 		}
 	}
@@ -150,7 +174,10 @@ public class MCA {
 
 		do {
 			int read = src.read(bb);
-			if (read < 0) throw new EOFException();
+			if (read < 0)
+				// zero out all the remaining data from the buffer
+				while (bb.remaining() > 0)
+					bb.put((byte) 0);
 		} while (bb.remaining() > 0);
 	}
 }

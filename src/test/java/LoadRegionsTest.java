@@ -1,6 +1,6 @@
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
 import com.technicjelle.bluemapsignextractor.common.Core;
-import com.technicjelle.bluemapsignextractor.common.MCA;
+import com.technicjelle.bluemapsignextractor.common.MCARegion;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,7 +135,7 @@ public class LoadRegionsTest {
 		Path regionFolder = getTestResource(regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
-			stream.filter(path -> path.toString().endsWith(".mca")).forEach(resourcePath -> testMCAFile(resourcePath, null));
+			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(resourcePath -> testMCAFile(resourcePath, null));
 		} catch (IOException e) {
 			System.err.println("Error reading region folder:");
 			e.printStackTrace();
@@ -157,11 +157,11 @@ public class LoadRegionsTest {
 	 */
 	public static void testMCAFile(@NotNull Path regionFile, @Nullable Integer expectedAmountOfSigns) {
 		System.out.println("Processing region " + regionFile.getFileName().toString());
-		final MCA mca = new MCA(regionFile);
+		final MCARegion mcaRegion = new MCARegion(regionFile);
 		int signsFound = 0;
 
 		try {
-			for (BlockEntity blockEntity : mca.getBlockEntities()) {
+			for (BlockEntity blockEntity : mcaRegion.getBlockEntities()) {
 				if (blockEntity.isInvalidSign()) continue;
 
 				signsFound++;
