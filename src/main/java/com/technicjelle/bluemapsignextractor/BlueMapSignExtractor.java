@@ -4,7 +4,6 @@ import com.technicjelle.BMCopy;
 import com.technicjelle.UpdateChecker;
 import com.technicjelle.bluemapsignextractor.common.Core;
 import de.bluecolored.bluemap.api.BlueMapAPI;
-import de.bluecolored.bluemap.api.BlueMapMap;
 import de.bluecolored.bluemap.api.BlueMapWorld;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.World;
@@ -65,8 +64,7 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 				getLogger().info("No BlueMap world found for world " + world.getName());
 				continue;
 			}
-			Collection<BlueMapMap> maps = blueMapWorld.getMaps();
-			Core.loadMarkersFromWorld(getLogger(), regionFolder.get(), maps);
+			Core.addMarkersToBlueMapWorld(getLogger(), blueMapWorld, regionFolder.get());
 		}
 	}
 

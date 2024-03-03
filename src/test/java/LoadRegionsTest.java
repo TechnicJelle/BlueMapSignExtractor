@@ -1,5 +1,7 @@
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
+import com.technicjelle.bluemapsignextractor.common.Core;
 import com.technicjelle.bluemapsignextractor.common.MCA;
+import de.bluecolored.bluemap.api.markers.MarkerSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -89,6 +92,16 @@ public class LoadRegionsTest {
 
 		//Chunk [31, 31] in world at (-1, -1)
 		testRegionFolder("MC_1_20_4/region_flat_world");
+	}
+
+	@Test
+	public void test_MC_1_20_4_LoadFullMarkerSet() {
+		Path regionFolder = getTestResource("MC_1_20_4/region_flat_world");
+		MarkerSet markerSet = Core.loadMarkerSetFromWorld(Logger.getLogger("test"), regionFolder);
+
+		System.out.println(markerSet);
+		markerSet.getMarkers().forEach((key, marker) -> System.out.println(key + " -> " + marker.getLabel()));
+		assertEquals(1, markerSet.getMarkers().size());
 	}
 
 	@Test
