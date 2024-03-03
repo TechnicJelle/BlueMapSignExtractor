@@ -11,6 +11,7 @@
 
 	<name>BlueMapSignExtractor</name>
 	<url>https://github.com/TechnicJelle/BlueMapSignExtractor/</url>
+	<description>Displays signs on your BlueMap as markers!</description>
 
 	<properties>
 		<java.version>11</java.version>
