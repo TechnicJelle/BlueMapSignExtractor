@@ -1,5 +1,7 @@
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
+import com.technicjelle.bluemapsignextractor.common.Core;
 import com.technicjelle.bluemapsignextractor.common.MCA;
+import de.bluecolored.bluemap.api.markers.MarkerSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -92,6 +95,16 @@ public class LoadRegionsTest {
 	}
 
 	@Test
+	public void test_MC_1_20_4_LoadFullMarkerSet() {
+		Path regionFolder = getTestResource("MC_1_20_4/region_flat_world");
+		MarkerSet markerSet = Core.loadMarkerSetFromWorld(Logger.getLogger("test"), regionFolder);
+
+		System.out.println(markerSet);
+		markerSet.getMarkers().forEach((key, marker) -> System.out.println(key + " -> " + marker.getLabel()));
+		assertEquals(1, markerSet.getMarkers().size());
+	}
+
+	@Test
 	public void test_MC_1_20_4_ZeroByteRegion() {
 		testMCAFile("/MC_1_20_4/r.-15.18.mca", 0);
 	}
@@ -111,11 +124,15 @@ public class LoadRegionsTest {
 	/// Helper methods ///
 	/// -------------- ///
 
+	public static Path getTestResource(String resourcePath) {
+		return Paths.get("").resolve("src/test/resources/" + resourcePath);
+	}
+
 	/**
 	 * @param regionFolderName The name of the folder in src/test/resources to test the region files in
 	 */
 	public static void testRegionFolder(final String regionFolderName) {
-		Path regionFolder = Paths.get("").resolve("src/test/resources/" + regionFolderName);
+		Path regionFolder = getTestResource(regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
 			stream.filter(path -> path.toString().endsWith(".mca")).forEach(resourcePath -> testMCAFile(resourcePath, null));
@@ -130,7 +147,7 @@ public class LoadRegionsTest {
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
 	public static void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
-		Path regionFile = Paths.get("").resolve("src/test/resources/" + resourcePath);
+		Path regionFile = getTestResource(resourcePath);
 		testMCAFile(regionFile, expectedAmountOfSigns);
 	}
 
@@ -150,7 +167,7 @@ public class LoadRegionsTest {
 				signsFound++;
 
 				System.out.println(blockEntity.getClass().getSimpleName() + ":\n" +
-						"Key: " + blockEntity.getKey() + "\n" +
+						"Key: " + blockEntity.createKey() + "\n" +
 						"Label: " + blockEntity.getLabel() + "\n" +
 						"Position: " + blockEntity.getPosition() + "\n" +
 						blockEntity.getFormattedHTML() +

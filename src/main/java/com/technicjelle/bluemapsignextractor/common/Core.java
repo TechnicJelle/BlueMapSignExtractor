@@ -1,6 +1,7 @@
 package com.technicjelle.bluemapsignextractor.common;
 
 import de.bluecolored.bluemap.api.BlueMapMap;
+import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 
@@ -13,24 +14,42 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class Core {
-	public static void loadMarkersFromWorld(Logger logger, Path regionFolder, Collection<BlueMapMap> maps) {
-		//TODO: Do not loop over every map, but loop over every world.
-		// Share a single MarkerSet for all of a world's maps.
-		// Right now it loops over the same world twice if there are multiple maps for it.
-		for (BlueMapMap map : maps) {
-			final String currentMapPrefix = "Map \"" + map.getId() + "\" (" + regionFolder + "): ";
-			logger.info(currentMapPrefix + "Loading signs into markers...");
+	/**
+	 * Adds markers to all of a BlueMapWorld's maps.
+	 */
+	public static void addMarkersToBlueMapWorld(Logger logger, BlueMapWorld world, Path regionFolder) {
+		Collection<BlueMapMap> maps = world.getMaps();
+		if (maps.isEmpty()) return;
 
-			try (final Stream<Path> stream = Files.list(regionFolder)) {
-				stream.filter(path -> path.toString().endsWith(".mca")).forEach(path -> processMCA(logger, map, path));
-			} catch (IOException e) {
-				logger.log(Level.SEVERE, "Error reading region folder", e);
-			}
-			logger.info(currentMapPrefix + "Finished loading signs into markers!");
-		}
+		MarkerSet markerSet = loadMarkerSetFromWorld(logger, regionFolder);
+		maps.forEach(map -> map.getMarkerSets().put("signs", markerSet));
 	}
 
-	private static void processMCA(Logger logger, BlueMapMap map, Path regionFile) {
+	public static MarkerSet loadMarkerSetFromWorld(Logger logger, Path regionFolder) {
+		final String startRegex = "^\\.[/\\\\]";
+		final String endRegex = "[/\\\\]?region[/\\\\]?$";
+		final String worldPath = regionFolder.toString().replaceAll(startRegex, "").replaceAll(endRegex, "");
+		final String currentWorldPrefix = "World \"" + worldPath + "\": ";
+		logger.info(currentWorldPrefix + "Extracting signs into markers...");
+
+		final MarkerSet markerSet = MarkerSet.builder() //TODO: Allow configuration
+				.label("Signs")
+				.toggleable(true)
+				.defaultHidden(false)
+				.build();
+
+		try (final Stream<Path> stream = Files.list(regionFolder)) {
+			stream.filter(path -> path.toString().endsWith(".mca")).forEach(path -> fillMarkerSetFromRegionFile(logger, markerSet, path));
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Error reading region folder", e);
+		}
+
+		logger.info(currentWorldPrefix + "Finished extracting signs into markers!");
+
+		return markerSet;
+	}
+
+	private static void fillMarkerSetFromRegionFile(Logger logger, MarkerSet markerSet, Path regionFile) {
 		logger.fine("Processing region " + regionFile.getFileName().toString());
 
 		final MCA mca = new MCA(regionFile);
@@ -46,9 +65,7 @@ public class Core {
 						.maxDistance(16)
 						.build();
 
-				final MarkerSet markerSet = map.getMarkerSets().computeIfAbsent("signs", id -> MarkerSet.builder().label("Signs").toggleable(true).defaultHidden(false).build());
-
-				markerSet.put(blockEntity.getKey(), htmlMarker);
+				markerSet.put(blockEntity.createKey(), htmlMarker);
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region file", e);
