@@ -111,11 +111,15 @@ public class LoadRegionsTest {
 	/// Helper methods ///
 	/// -------------- ///
 
+	public static Path getTestResource(String resourcePath) {
+		return Paths.get("").resolve("src/test/resources/" + resourcePath);
+	}
+
 	/**
 	 * @param regionFolderName The name of the folder in src/test/resources to test the region files in
 	 */
 	public static void testRegionFolder(final String regionFolderName) {
-		Path regionFolder = Paths.get("").resolve("src/test/resources/" + regionFolderName);
+		Path regionFolder = getTestResource(regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
 			stream.filter(path -> path.toString().endsWith(".mca")).forEach(resourcePath -> testMCAFile(resourcePath, null));
@@ -130,7 +134,7 @@ public class LoadRegionsTest {
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
 	public static void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
-		Path regionFile = Paths.get("").resolve("src/test/resources/" + resourcePath);
+		Path regionFile = getTestResource(resourcePath);
 		testMCAFile(regionFile, expectedAmountOfSigns);
 	}
 
