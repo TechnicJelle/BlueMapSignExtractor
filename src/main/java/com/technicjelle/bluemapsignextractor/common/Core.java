@@ -48,7 +48,7 @@ public class Core {
 
 				final MarkerSet markerSet = map.getMarkerSets().computeIfAbsent("signs", id -> MarkerSet.builder().label("Signs").toggleable(true).defaultHidden(false).build());
 
-				markerSet.put(blockEntity.getKey(), htmlMarker);
+				markerSet.put(blockEntity.createKey(), htmlMarker);
 			}
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region file", e);

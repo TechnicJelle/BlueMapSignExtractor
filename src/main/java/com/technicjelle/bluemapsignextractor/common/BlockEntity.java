@@ -22,7 +22,7 @@ public abstract class BlockEntity {
 		return new Vector3d(x + 0.5, y + 0.5, z + 0.5); // center of the block
 	}
 
-	public String getKey() {
+	public String createKey() {
 		return "sign@" + getPosition().toString();
 	}
 

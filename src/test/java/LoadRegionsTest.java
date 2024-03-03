@@ -154,7 +154,7 @@ public class LoadRegionsTest {
 				signsFound++;
 
 				System.out.println(blockEntity.getClass().getSimpleName() + ":\n" +
-						"Key: " + blockEntity.getKey() + "\n" +
+						"Key: " + blockEntity.createKey() + "\n" +
 						"Label: " + blockEntity.getLabel() + "\n" +
 						"Position: " + blockEntity.getPosition() + "\n" +
 						blockEntity.getFormattedHTML() +
