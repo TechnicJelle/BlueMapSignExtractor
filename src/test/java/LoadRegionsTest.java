@@ -45,6 +45,10 @@ public class LoadRegionsTest {
 	public void test_MC_1_17_1() {
 		//Chunk [16, 16] in world at (-16, -16)
 		testMCAFile("/MC_1_17_1/r.-1.-1.mca", 2);
+
+		//Chunk file with chunks of DataVersion 2840 in it.
+		// Thanks to GitHub user @ShDis for providing this file.
+		testMCAFile("/MC_1_20_4/r.282.253.mca", 0);
 	}
 
 	@Test

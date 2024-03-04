@@ -38,12 +38,14 @@ public class ChunkClass {
 		//https://minecraft.wiki/w/Data_version#List_of_data_versions
 		if (dataVersion >= 3463) {
 			return new ChunkClass(MC_1_20_4_Chunk.class, dataVersion);
-		} else if (intInRange(dataVersion, 2825, 3337)) {
+		} else if (intInRange(dataVersion, 2844, 3337)) {
+			//2844 is when they cleaned up the Level section (https://minecraft.wiki/w/Java_Edition_21w43a)
 			//For versions:
 			// - 1.18.2
 			// - 1.19.4
 			return new ChunkClass(MC_1_18_2_Chunk.class, dataVersion);
-		} else if (intInRange(dataVersion, 2724, 2730)) {
+		} else if (intInRange(dataVersion, 2724, 2840)) {
+			//2840 is right before they cleaned up the Level section (https://minecraft.wiki/w/Java_Edition_21w42a)
 			return new ChunkClass(MC_1_17_1_Chunk.class, dataVersion);
 		} else if (intInRange(dataVersion, 1901, 2586)) {
 			//For versions:
