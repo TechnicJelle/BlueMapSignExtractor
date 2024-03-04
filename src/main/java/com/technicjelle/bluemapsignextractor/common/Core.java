@@ -39,7 +39,7 @@ public class Core {
 				.build();
 
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
-			stream.filter(path -> path.toString().endsWith(".mca")).forEach(path -> fillMarkerSetFromRegionFile(logger, markerSet, path));
+			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(path -> fillMarkerSetFromRegionFile(logger, markerSet, path));
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region folder", e);
 		}
@@ -52,9 +52,9 @@ public class Core {
 	private static void fillMarkerSetFromRegionFile(Logger logger, MarkerSet markerSet, Path regionFile) {
 		logger.fine("Processing region " + regionFile.getFileName().toString());
 
-		final MCA mca = new MCA(regionFile);
+		final MCARegion mcaRegion = new MCARegion(regionFile);
 		try {
-			for (BlockEntity blockEntity : mca.getBlockEntities()) {
+			for (BlockEntity blockEntity : mcaRegion.getBlockEntities()) {
 				if (blockEntity.isInvalidSign()) continue;
 
 				final HtmlMarker htmlMarker = HtmlMarker.builder()
