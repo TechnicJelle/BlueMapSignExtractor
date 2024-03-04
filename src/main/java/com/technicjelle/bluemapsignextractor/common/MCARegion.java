@@ -109,7 +109,12 @@ public class MCARegion {
 
 //					System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
 
-					if (!chunk.isGenerated()) continue;
+					try {
+						if (!chunk.isGenerated()) continue;
+					} catch (NullPointerException e) {
+						throw new IOException("NullPointerException in chunk " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" +
+								"\t\tChunk class: " + chunkClass, e);
+					}
 
 					BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 					if (chunkBlockEntities == null) {
