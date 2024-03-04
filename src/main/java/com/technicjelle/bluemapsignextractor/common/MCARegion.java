@@ -30,6 +30,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -39,6 +40,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MCARegion {
 	public static final String FILE_SUFFIX = ".mca";
@@ -46,9 +49,15 @@ public class MCARegion {
 	private static final BlueNBT nbt = new BlueNBT();
 
 	private final Path regionFile;
+	private final Logger logger;
 
-	public MCARegion(Path regionFile) {
+	public MCARegion(Logger logger, Path regionFile) {
 		this.regionFile = regionFile;
+		this.logger = logger;
+	}
+
+	private void logDebugMessage(int x, int z, Level level, String errorMessage) {
+		logger.log(level, "Problem in chunk at " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" + errorMessage);
 	}
 
 	public Collection<BlockEntity> getBlockEntities() throws IOException {
@@ -86,42 +95,68 @@ public class MCARegion {
 					channel.position(offset);
 					readFully(channel, chunkDataBuffer, 0, size);
 
-					if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
-						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, chunkDataBuffer, size);
-						if (chunkWithVersion == null) {
-							throw new IOException("Failed to conclude ChunkClass from chunk at " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath());
-						}
-						chunkClass = ChunkClass.getFromDataVersion(chunkWithVersion.getDataVersion());
+					final Compression compression;
+					try {
+						compression = concludeCompression(chunkDataBuffer);
+					} catch (UnsupportedEncodingException e) {
+						logDebugMessage(x, z, Level.SEVERE, e.getMessage());
+						continue;
 					}
 
-					Chunk chunk = loadChunk(chunkClass.getJavaType(), chunkDataBuffer, size);
-					final ChunkClass newChunkClass = ChunkClass.getFromDataVersion(chunk.getDataVersion());
+					if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
+						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, compression, chunkDataBuffer, size);
+						if (chunkWithVersion == null) {
+							logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass. Skipping...");
+							continue;
+						}
+						try {
+							chunkClass = ChunkClass.createFromDataVersion(chunkWithVersion.getDataVersion());
+						} catch (UnsupportedEncodingException e) {
+							logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
+							continue;
+						}
+					}
+
+					Chunk chunk = loadChunk(chunkClass.getJavaType(), compression, chunkDataBuffer, size);
+					final ChunkClass newChunkClass;
+					try {
+						newChunkClass = ChunkClass.createFromDataVersion(chunk.getDataVersion());
+					} catch (UnsupportedEncodingException e) {
+						logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
+						continue;
+					}
 
 					//Check if current chunk needs a different loader than the previous chunk
 					if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
-//						System.out.println("Chunk at " + padLeft(x) + ", " + padLeft(z) + " has a significantly different data version (" + newChunkClass.getDataVersion() + ") " +
-//								"than the previous chunk (" + chunkClass.getDataVersion() + ") in this region file.\n" +
-//								"\tSwitching loader from " + chunkClass.getTypeName() + " to " + newChunkClass.getTypeName() + "...");
+						logDebugMessage(x, z, Level.FINE, "Significantly different data versions between previous and next chunks.\n" +
+								"\tPrevious: " + chunkClass + "\n" +
+								"\tNext: " + newChunkClass + "\n" +
+								"\tSwitching loader...");
 						chunkClass = newChunkClass;
 						//Load chunk again, with the new class
-						chunk = loadChunk(chunkClass.getJavaType(), chunkDataBuffer, size);
+						chunk = loadChunk(chunkClass.getJavaType(), compression, chunkDataBuffer, size);
 					}
 
-//					System.out.println("Chunk at " + x + ", " + z + ": " + chunkClass);
+					logger.log(Level.FINEST, "Chunk at " + x + ", " + z + ": " + chunkClass);
 
 					try {
-						if (!chunk.isGenerated()) continue;
+						if (!chunk.isGenerated()) {
+							logDebugMessage(x, z, Level.FINER, "Chunk is not fully generated, yet. Skipping...");
+							continue;
+						}
 					} catch (NullPointerException e) {
-						throw new IOException("NullPointerException in chunk " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" +
-								"\t\tChunk class: " + chunkClass, e);
+						logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass due to a NullPointerException in the isGenerated() call. Skipping...\n" +
+								"\tChunk class: " + chunkClass);
+						continue;
 					}
 
 					BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 					if (chunkBlockEntities == null) {
-						throw new IOException("Chunk's BlockEntities was null in chunk " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" +
-								"\t\tChunk class: " + chunkClass + "\n" +
-								"\t\tChunk generation status: " + chunk.getStatus() + "\n" +
-								"\t\tChunk is generated: " + chunk.isGenerated());
+						logDebugMessage(x, z, Level.SEVERE, "Chunk's BlockEntities was null. Skipping...\n" +
+								"\tChunk class: " + chunkClass + "\n" +
+								"\tChunk generation status: " + chunk.getStatus() + "\n" +
+								"\tChunk is generated: " + chunk.isGenerated());
+						continue;
 					}
 
 					Collections.addAll(regionBlockEntities, chunkBlockEntities);
@@ -138,24 +173,22 @@ public class MCARegion {
 		return String.format(format, i);
 	}
 
-	private static <T> T loadChunk(Class<T> type, byte[] data, int size) throws IOException {
+	private static Compression concludeCompression(byte[] data) throws UnsupportedEncodingException {
 		int compressionTypeId = data[4];
-		Compression compression;
 		switch (compressionTypeId) {
 			case 0:
 			case 3:
-				compression = Compression.NONE;
-				break;
+				return Compression.NONE;
 			case 1:
-				compression = Compression.GZIP;
-				break;
+				return Compression.GZIP;
 			case 2:
-				compression = Compression.DEFLATE;
-				break;
+				return Compression.DEFLATE;
 			default:
-				throw new IOException("Unknown chunk compression-id: " + compressionTypeId);
+				throw new UnsupportedEncodingException("Unknown chunk compression-id: " + compressionTypeId);
 		}
+	}
 
+	private static <T> T loadChunk(Class<T> type, Compression compression, byte[] data, int size) throws IOException {
 		try (InputStream in = new BufferedInputStream(compression.decompress(new ByteArrayInputStream(data, 5, size - 5)))) {
 			return loadChunk(type, in);
 		}

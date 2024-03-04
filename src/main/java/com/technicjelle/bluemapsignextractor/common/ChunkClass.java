@@ -6,7 +6,7 @@ import com.technicjelle.bluemapsignextractor.versions.MC_1_17_1.MC_1_17_1_Chunk;
 import com.technicjelle.bluemapsignextractor.versions.MC_1_18_2.MC_1_18_2_Chunk;
 import com.technicjelle.bluemapsignextractor.versions.MC_1_20_4.MC_1_20_4_Chunk;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class ChunkClass {
 	private final Class<? extends Chunk> javaType;
@@ -21,20 +21,12 @@ public class ChunkClass {
 		return javaType;
 	}
 
-	public int getDataVersion() {
-		return dataVersion;
-	}
-
-	public String getTypeName() {
-		return javaType.getSimpleName();
-	}
-
 	@Override
 	public String toString() {
-		return "ChunkClass { DataVersion: " + dataVersion + " -> Loader: " + getTypeName() + " }";
+		return "ChunkClass { DataVersion: " + dataVersion + " -> Loader: " + javaType.getSimpleName() + " }";
 	}
 
-	public static ChunkClass getFromDataVersion(int dataVersion) throws IOException {
+	public static ChunkClass createFromDataVersion(int dataVersion) throws UnsupportedEncodingException {
 		//https://minecraft.wiki/w/Data_version#List_of_data_versions
 		if (dataVersion >= 3463) {
 			return new ChunkClass(MC_1_20_4_Chunk.class, dataVersion);
@@ -56,9 +48,9 @@ public class ChunkClass {
 		} else if (intInRange(dataVersion, 1444, 1631)) {
 			return new ChunkClass(MC_1_13_2_Chunk.class, dataVersion);
 		} else if (dataVersion < 1444) {
-			throw new IOException("Chunk DataVersion (" + dataVersion + ") is too old! Please upgrade your chunks to at least 1.13.2");
+			throw new UnsupportedEncodingException("Chunk DataVersion (" + dataVersion + ") is too old! Please upgrade your chunks to at least 1.13.2.");
 		} else {
-			throw new IOException("Unsupported Chunk DataVersion: " + dataVersion);
+			throw new UnsupportedEncodingException("Unsupported Chunk DataVersion: " + dataVersion + ".");
 		}
 	}
 

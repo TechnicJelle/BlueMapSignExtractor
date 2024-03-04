@@ -2,20 +2,19 @@ import com.technicjelle.bluemapsignextractor.common.BlockEntity;
 import com.technicjelle.bluemapsignextractor.common.Core;
 import com.technicjelle.bluemapsignextractor.common.MCARegion;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
-import org.jetbrains.annotations.NotNull;
+import mockery.ConsoleLogger;
 import org.jetbrains.annotations.Nullable;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-
-@SuppressWarnings("CallToPrintStackTrace")
 public class LoadRegionsTest {
 	@Test
 	public void test_MC_1_13_2() {
@@ -101,11 +100,12 @@ public class LoadRegionsTest {
 	@Test
 	public void test_MC_1_20_4_LoadFullMarkerSet() {
 		Path regionFolder = getTestResource("MC_1_20_4/region_flat_world");
-		MarkerSet markerSet = Core.loadMarkerSetFromWorld(Logger.getLogger("test"), regionFolder);
+		Logger logger = ConsoleLogger.createLogger(regionFolder.toAbsolutePath().toString(), Level.FINE);
+		MarkerSet markerSet = Core.loadMarkerSetFromWorld(logger, regionFolder);
 
-		System.out.println(markerSet);
-		markerSet.getMarkers().forEach((key, marker) -> System.out.println(key + " -> " + marker.getLabel()));
-		assertEquals(1, markerSet.getMarkers().size());
+		logger.log(Level.INFO, "MarkerSet \"" + markerSet.getLabel() + "\" contains " + markerSet.getMarkers().size() + " markers:");
+		markerSet.getMarkers().forEach((key, marker) -> logger.log(Level.INFO, key + " -> " + marker.getLabel()));
+		Assert.assertEquals(1, markerSet.getMarkers().size());
 	}
 
 	@Test
@@ -128,6 +128,9 @@ public class LoadRegionsTest {
 	/// Helper methods ///
 	/// -------------- ///
 
+
+	// --- Public --- //
+
 	public static Path getTestResource(String resourcePath) {
 		return Paths.get("").resolve("src/test/resources/" + resourcePath);
 	}
@@ -136,13 +139,13 @@ public class LoadRegionsTest {
 	 * @param regionFolderName The name of the folder in src/test/resources to test the region files in
 	 */
 	public static void testRegionFolder(final String regionFolderName) {
+		Logger logger = ConsoleLogger.createLogger(regionFolderName, Level.FINE);
 		Path regionFolder = getTestResource(regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
-			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(resourcePath -> testMCAFile(resourcePath, null));
+			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(resourcePath -> testMCAFile(logger, resourcePath, null));
 		} catch (IOException e) {
-			System.err.println("Error reading region folder:");
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error reading region folder", e);
 		}
 	}
 
@@ -151,17 +154,20 @@ public class LoadRegionsTest {
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
 	public static void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
+		Logger logger = ConsoleLogger.createLogger(resourcePath, Level.FINE);
 		Path regionFile = getTestResource(resourcePath);
-		testMCAFile(regionFile, expectedAmountOfSigns);
+		testMCAFile(logger, regionFile, expectedAmountOfSigns);
 	}
+
+	// --- Private --- //
 
 	/**
 	 * @param regionFile            The region file to test
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
-	public static void testMCAFile(@NotNull Path regionFile, @Nullable Integer expectedAmountOfSigns) {
-		System.out.println("Processing region " + regionFile.getFileName().toString());
-		final MCARegion mcaRegion = new MCARegion(regionFile);
+	private static void testMCAFile(Logger logger, Path regionFile, @Nullable Integer expectedAmountOfSigns) {
+		logger.log(Level.INFO, "Processing region " + regionFile.getFileName().toString());
+		final MCARegion mcaRegion = new MCARegion(logger, regionFile);
 		int signsFound = 0;
 
 		try {
@@ -170,7 +176,7 @@ public class LoadRegionsTest {
 
 				signsFound++;
 
-				System.out.println(blockEntity.getClass().getSimpleName() + ":\n" +
+				logger.log(Level.CONFIG, blockEntity.getClass().getSimpleName() + ":\n" +
 						"Key: " + blockEntity.createKey() + "\n" +
 						"Label: " + blockEntity.getLabel() + "\n" +
 						"Position: " + blockEntity.getPosition() + "\n" +
@@ -178,13 +184,12 @@ public class LoadRegionsTest {
 						"\n\n");
 			}
 		} catch (IOException e) {
-			System.err.println("Error reading region file:");
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error reading region file", e);
 		}
 
 		if (expectedAmountOfSigns != null)
-			assertEquals(expectedAmountOfSigns.intValue(), signsFound);
+			Assert.assertEquals(expectedAmountOfSigns.intValue(), signsFound);
 
-		System.out.println("Successfully processed region file, and found " + signsFound + " signs\n");
+		logger.log(Level.INFO, "Successfully processed region file, and found " + signsFound + " signs\n");
 	}
 }

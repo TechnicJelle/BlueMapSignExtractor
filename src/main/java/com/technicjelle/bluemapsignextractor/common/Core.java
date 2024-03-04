@@ -52,7 +52,7 @@ public class Core {
 	private static void fillMarkerSetFromRegionFile(Logger logger, MarkerSet markerSet, Path regionFile) {
 		logger.fine("Processing region " + regionFile.getFileName().toString());
 
-		final MCARegion mcaRegion = new MCARegion(regionFile);
+		final MCARegion mcaRegion = new MCARegion(logger, regionFile);
 		try {
 			for (BlockEntity blockEntity : mcaRegion.getBlockEntities()) {
 				if (blockEntity.isInvalidSign()) continue;
