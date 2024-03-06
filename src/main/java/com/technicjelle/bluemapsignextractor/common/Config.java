@@ -8,4 +8,6 @@ public interface Config {
 	boolean isToggleable();
 
 	boolean isDefaultHidden();
+
+	double getMaxDistance();
 }

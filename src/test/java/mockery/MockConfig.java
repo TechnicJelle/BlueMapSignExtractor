@@ -17,4 +17,9 @@ public class MockConfig implements Config {
 	public boolean isDefaultHidden() {
 		return false;
 	}
+
+	@Override
+	public double getMaxDistance() {
+		return 0.0;
+	}
 }

@@ -3,3 +3,7 @@
 MarkerSetName: "Signs"
 Toggleable: true
 DefaultHidden: false
+
+# Allows you to limit the distance to the camera at which the sign markers are shown.
+# If it's 0, the markers will always be visible, even when zoomed out really far.
+MaxDistance: 32

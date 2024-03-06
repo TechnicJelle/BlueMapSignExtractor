@@ -10,6 +10,7 @@ public class PaperConfig implements Config {
 	private String markerSetName;
 	private boolean toggleable;
 	private boolean defaultHidden;
+	private double maxDistance;
 
 	public PaperConfig(JavaPlugin plugin) {
 		loadFromPlugin(plugin);
@@ -29,6 +30,7 @@ public class PaperConfig implements Config {
 		markerSetName = plugin.getConfig().getString("MarkerSetName", "Signs");
 		toggleable = plugin.getConfig().getBoolean("Toggleable", true);
 		defaultHidden = plugin.getConfig().getBoolean("DefaultHidden", false);
+		maxDistance = plugin.getConfig().getDouble("MaxDistance", 0.0);
 	}
 
 	@Override
@@ -44,5 +46,10 @@ public class PaperConfig implements Config {
 	@Override
 	public boolean isDefaultHidden() {
 		return defaultHidden;
+	}
+
+	@Override
+	public double getMaxDistance() {
+		return maxDistance;
 	}
 }
