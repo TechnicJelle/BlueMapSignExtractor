@@ -22,16 +22,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class BlueMapSignExtractor extends JavaPlugin {
+	private PaperConfig config;
 	private UpdateChecker updateChecker;
 
 	@Override
 	public void onEnable() {
 		getLogger().info("BlueMapSignExtractor enabled");
 
-		new Metrics(this, 19320);
-
 		updateChecker = new UpdateChecker("TechnicJelle", "BlueMapSignExtractor", getDescription().getVersion());
 		updateChecker.checkAsync();
+
+		new Metrics(this, 19320);
+
+		config = new PaperConfig(this);
 
 		BlueMapAPI.onEnable(onEnableListener);
 	}
@@ -46,6 +49,8 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 		} catch (IOException e) {
 			getLogger().log(Level.SEVERE, "Failed to copy resources to BlueMap webapp!", e);
 		}
+
+		config.loadFromPlugin(this);
 
 		getServer().getScheduler().runTaskAsynchronously(this, () -> loadMarkersFromWorlds(api));
 	};
@@ -64,7 +69,7 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 				getLogger().info("No BlueMap world found for world " + world.getName());
 				continue;
 			}
-			Core.addMarkersToBlueMapWorld(getLogger(), blueMapWorld, regionFolder.get());
+			Core.addMarkersToBlueMapWorld(getLogger(), config, blueMapWorld, regionFolder.get());
 		}
 	}
 

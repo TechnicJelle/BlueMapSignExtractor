@@ -1,0 +1,5 @@
+# Marker Set Options
+# Documentation: https://bluemap.bluecolored.de/wiki/customization/Markers.html#marker-sets
+MarkerSetName: "Signs"
+Toggleable: true
+DefaultHidden: false

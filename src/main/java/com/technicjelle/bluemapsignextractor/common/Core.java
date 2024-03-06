@@ -17,25 +17,25 @@ public class Core {
 	/**
 	 * Adds markers to all of a BlueMapWorld's maps.
 	 */
-	public static void addMarkersToBlueMapWorld(Logger logger, BlueMapWorld world, Path regionFolder) {
+	public static void addMarkersToBlueMapWorld(Logger logger, Config config, BlueMapWorld world, Path regionFolder) {
 		Collection<BlueMapMap> maps = world.getMaps();
 		if (maps.isEmpty()) return;
 
-		MarkerSet markerSet = loadMarkerSetFromWorld(logger, regionFolder);
-		maps.forEach(map -> map.getMarkerSets().put("signs", markerSet));
+		MarkerSet markerSet = loadMarkerSetFromWorld(logger, config, regionFolder);
+		maps.forEach(map -> map.getMarkerSets().put(Config.MARKER_SET_ID, markerSet));
 	}
 
-	public static MarkerSet loadMarkerSetFromWorld(Logger logger, Path regionFolder) {
+	public static MarkerSet loadMarkerSetFromWorld(Logger logger, Config config, Path regionFolder) {
 		final String startRegex = "^\\.[/\\\\]";
 		final String endRegex = "[/\\\\]?region[/\\\\]?$";
 		final String worldPath = regionFolder.toString().replaceAll(startRegex, "").replaceAll(endRegex, "");
 		final String currentWorldPrefix = "World \"" + worldPath + "\": ";
 		logger.info(currentWorldPrefix + "Extracting signs into markers...");
 
-		final MarkerSet markerSet = MarkerSet.builder() //TODO: Allow configuration
-				.label("Signs")
-				.toggleable(true)
-				.defaultHidden(false)
+		final MarkerSet markerSet = MarkerSet.builder()
+				.label(config.getMarkerSetName())
+				.toggleable(config.isToggleable())
+				.defaultHidden(config.isDefaultHidden())
 				.build();
 
 		try (final Stream<Path> stream = Files.list(regionFolder)) {

@@ -3,6 +3,7 @@ import com.technicjelle.bluemapsignextractor.common.Core;
 import com.technicjelle.bluemapsignextractor.common.MCARegion;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import mockery.ConsoleLogger;
+import mockery.MockConfig;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class LoadRegionsTest {
 	public void test_MC_1_20_4_LoadFullMarkerSet() {
 		Path regionFolder = getTestResource("MC_1_20_4/region_flat_world");
 		Logger logger = ConsoleLogger.createLogger(regionFolder.toAbsolutePath().toString(), Level.FINE);
-		MarkerSet markerSet = Core.loadMarkerSetFromWorld(logger, regionFolder);
+		MarkerSet markerSet = Core.loadMarkerSetFromWorld(logger, new MockConfig(), regionFolder);
 
 		logger.log(Level.INFO, "MarkerSet \"" + markerSet.getLabel() + "\" contains " + markerSet.getMarkers().size() + " markers:");
 		markerSet.getMarkers().forEach((key, marker) -> logger.log(Level.INFO, key + " -> " + marker.getLabel()));
