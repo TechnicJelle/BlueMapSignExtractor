@@ -1,4 +1,4 @@
-package com.technicjelle.bluemapsignextractor;
+package com.technicjelle.bluemapsignextractor.impl.paper;
 
 import com.technicjelle.BMCopy;
 import com.technicjelle.UpdateChecker;
