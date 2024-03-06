@@ -62,8 +62,11 @@ public class Core {
 						.position(blockEntity.getPosition())
 						.html(blockEntity.getFormattedHTML())
 						.styleClasses("sign")
-						.maxDistance(config.getMaxDistance())
 						.build();
+
+				if (config.getMaxDistance() > 0) {
+					htmlMarker.setMaxDistance(config.getMaxDistance());
+				}
 
 				markerSet.put(blockEntity.createKey(), htmlMarker);
 			}
