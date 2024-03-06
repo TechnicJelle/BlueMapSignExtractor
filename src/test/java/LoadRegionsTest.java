@@ -1,4 +1,5 @@
 import com.technicjelle.bluemapsignextractor.common.BlockEntity;
+import com.technicjelle.bluemapsignextractor.common.Config;
 import com.technicjelle.bluemapsignextractor.common.Core;
 import com.technicjelle.bluemapsignextractor.common.MCARegion;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
@@ -141,10 +142,11 @@ public class LoadRegionsTest {
 	 */
 	public static void testRegionFolder(final String regionFolderName) {
 		Logger logger = ConsoleLogger.createLogger(regionFolderName, Level.FINE);
+		Config config = new MockConfig();
 		Path regionFolder = getTestResource(regionFolderName);
 		assert Files.exists(regionFolder);
 		try (final Stream<Path> stream = Files.list(regionFolder)) {
-			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(resourcePath -> testMCAFile(logger, resourcePath, null));
+			stream.filter(path -> path.toString().endsWith(MCARegion.FILE_SUFFIX)).forEach(resourcePath -> testMCAFile(logger, config, resourcePath, null));
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Error reading region folder", e);
 		}
@@ -156,8 +158,9 @@ public class LoadRegionsTest {
 	 */
 	public static void testMCAFile(String resourcePath, @Nullable Integer expectedAmountOfSigns) {
 		Logger logger = ConsoleLogger.createLogger(resourcePath, Level.FINE);
+		Config config = new MockConfig();
 		Path regionFile = getTestResource(resourcePath);
-		testMCAFile(logger, regionFile, expectedAmountOfSigns);
+		testMCAFile(logger, config, regionFile, expectedAmountOfSigns);
 	}
 
 	// --- Private --- //
@@ -166,13 +169,13 @@ public class LoadRegionsTest {
 	 * @param regionFile            The region file to test
 	 * @param expectedAmountOfSigns The amount of signs to expect in the region file. If null, the expected amount of signs will not be checked.
 	 */
-	private static void testMCAFile(Logger logger, Path regionFile, @Nullable Integer expectedAmountOfSigns) {
+	private static void testMCAFile(Logger logger, Config config, Path regionFile, @Nullable Integer expectedAmountOfSigns) {
 		logger.log(Level.INFO, "Processing region " + regionFile.getFileName().toString());
 		final MCARegion mcaRegion = new MCARegion(logger, regionFile);
 		int signsFound = 0;
 
 		try {
-			for (BlockEntity blockEntity : mcaRegion.getBlockEntities()) {
+			for (BlockEntity blockEntity : mcaRegion.getBlockEntities(config)) {
 				if (blockEntity.isInvalidSign()) continue;
 
 				signsFound++;

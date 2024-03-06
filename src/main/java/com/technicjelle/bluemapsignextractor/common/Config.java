@@ -10,4 +10,6 @@ public interface Config {
 	boolean isDefaultHidden();
 
 	double getMaxDistance();
+
+	boolean areWarningsAllowed();
 }

@@ -11,6 +11,7 @@ public class PaperConfig implements Config {
 	private boolean toggleable;
 	private boolean defaultHidden;
 	private double maxDistance;
+	private boolean suppressWarnings;
 
 	public PaperConfig(JavaPlugin plugin) {
 		loadFromPlugin(plugin);
@@ -31,6 +32,7 @@ public class PaperConfig implements Config {
 		toggleable = plugin.getConfig().getBoolean("Toggleable", true);
 		defaultHidden = plugin.getConfig().getBoolean("DefaultHidden", false);
 		maxDistance = plugin.getConfig().getDouble("MaxDistance", 0.0);
+		suppressWarnings = plugin.getConfig().getBoolean("SuppressWarnings", false);
 	}
 
 	@Override
@@ -51,5 +53,10 @@ public class PaperConfig implements Config {
 	@Override
 	public double getMaxDistance() {
 		return maxDistance;
+	}
+
+	@Override
+	public boolean areWarningsAllowed() {
+		return !suppressWarnings;
 	}
 }

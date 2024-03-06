@@ -22,4 +22,9 @@ public class MockConfig implements Config {
 	public double getMaxDistance() {
 		return 0.0;
 	}
+
+	@Override
+	public boolean areWarningsAllowed() {
+		return true;
+	}
 }

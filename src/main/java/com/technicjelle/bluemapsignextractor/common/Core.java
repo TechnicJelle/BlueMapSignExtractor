@@ -54,7 +54,7 @@ public class Core {
 
 		final MCARegion mcaRegion = new MCARegion(logger, regionFile);
 		try {
-			for (BlockEntity blockEntity : mcaRegion.getBlockEntities()) {
+			for (BlockEntity blockEntity : mcaRegion.getBlockEntities(config)) {
 				if (blockEntity.isInvalidSign()) continue;
 
 				final HtmlMarker htmlMarker = HtmlMarker.builder()

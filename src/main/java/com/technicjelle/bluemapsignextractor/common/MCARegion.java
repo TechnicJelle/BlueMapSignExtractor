@@ -60,7 +60,7 @@ public class MCARegion {
 		logger.log(level, "Problem in chunk at " + padLeft(x) + ", " + padLeft(z) + " in region file " + regionFile.toAbsolutePath() + "\n" + errorMessage);
 	}
 
-	public Collection<BlockEntity> getBlockEntities() throws IOException {
+	public Collection<BlockEntity> getBlockEntities(Config config) throws IOException {
 		if (Files.notExists(regionFile)) return Collections.emptyList();
 
 		long fileLength = Files.size(regionFile);
@@ -106,13 +106,14 @@ public class MCARegion {
 					if (chunkClass == null) { //Starts off as null. This is the first chunk we're loading.
 						final ChunkWithVersion chunkWithVersion = loadChunk(ChunkWithVersion.class, compression, chunkDataBuffer, size);
 						if (chunkWithVersion == null) {
-							logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass. Skipping...");
+							logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkWithVersion! Skipping...");
 							continue;
 						}
 						try {
 							chunkClass = ChunkClass.createFromDataVersion(chunkWithVersion.getDataVersion());
 						} catch (UnsupportedEncodingException e) {
-							logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
+							if (config.areWarningsAllowed())
+								logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
 							continue;
 						}
 					}
@@ -122,37 +123,41 @@ public class MCARegion {
 					try {
 						newChunkClass = ChunkClass.createFromDataVersion(chunk.getDataVersion());
 					} catch (UnsupportedEncodingException e) {
-						logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
+						if (config.areWarningsAllowed())
+							logDebugMessage(x, z, Level.WARNING, e.getMessage() + " Skipping...");
 						continue;
 					}
 
 					//Check if current chunk needs a different loader than the previous chunk
 					if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
-						logDebugMessage(x, z, Level.FINE, "Significantly different data versions between previous and next chunks.\n" +
-								"\tPrevious: " + chunkClass + "\n" +
-								"\tNext: " + newChunkClass + "\n" +
-								"\tSwitching loader...");
+						if (config.areWarningsAllowed())
+							logDebugMessage(x, z, Level.FINE, "Significantly different data versions between previous and next chunks.\n" +
+									"\tPrevious: " + chunkClass + "\n" +
+									"\tNext: " + newChunkClass + "\n" +
+									"\tSwitching loader...");
 						chunkClass = newChunkClass;
 						//Load chunk again, with the new class
 						chunk = loadChunk(chunkClass.getJavaType(), compression, chunkDataBuffer, size);
 					}
 
-					logger.log(Level.FINEST, "Chunk at " + x + ", " + z + ": " + chunkClass);
+					if (config.areWarningsAllowed())
+						logger.log(Level.FINEST, "Chunk at " + x + ", " + z + ": " + chunkClass);
 
 					try {
 						if (!chunk.isGenerated()) {
-							logDebugMessage(x, z, Level.FINER, "Chunk is not fully generated, yet. Skipping...");
+							if (config.areWarningsAllowed())
+								logDebugMessage(x, z, Level.FINER, "Chunk is not fully generated, yet. Skipping...");
 							continue;
 						}
 					} catch (NullPointerException e) {
-						logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass due to a NullPointerException in the isGenerated() call. Skipping...\n" +
+						logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass due to a NullPointerException in the isGenerated() call! Skipping...\n" +
 								"\tChunk class: " + chunkClass);
 						continue;
 					}
 
 					BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 					if (chunkBlockEntities == null) {
-						logDebugMessage(x, z, Level.SEVERE, "Chunk's BlockEntities was null. Skipping...\n" +
+						logDebugMessage(x, z, Level.SEVERE, "Chunk's BlockEntities was null! Skipping...\n" +
 								"\tChunk class: " + chunkClass + "\n" +
 								"\tChunk generation status: " + chunk.getStatus() + "\n" +
 								"\tChunk is generated: " + chunk.isGenerated());
