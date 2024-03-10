@@ -50,4 +50,12 @@ public class MC_1_13_2_Sign extends BlockEntity {
 
 		return "Blank sign at " + getPosition().toString();
 	}
+
+	@Override
+	public boolean isBlank() {
+		return unJSON(text1).isBlank()
+			&& unJSON(text2).isBlank()
+			&& unJSON(text3).isBlank()
+			&& unJSON(text4).isBlank();
+	}
 }

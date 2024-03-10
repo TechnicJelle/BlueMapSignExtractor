@@ -29,4 +29,6 @@ public abstract class BlockEntity {
 	public abstract String getFormattedHTML();
 
 	public abstract String getLabel();
+
+	public abstract boolean isBlank();
 }

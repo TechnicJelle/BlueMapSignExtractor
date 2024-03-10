@@ -14,3 +14,6 @@ MaxDistance: 32
 # Keep in mind that this will still not make the signs from those chunks actually show up,
 #  it will only hide the warnings about these broken chunks.
 SuppressWarnings: false
+
+# Only mark signs with text
+IgnoreBlankSigns: false

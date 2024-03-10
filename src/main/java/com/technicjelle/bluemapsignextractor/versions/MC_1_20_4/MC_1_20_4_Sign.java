@@ -94,4 +94,9 @@ public class MC_1_20_4_Sign extends BlockEntity {
 		}
 		return "Blank sign at " + getPosition().toString();
 	}
+
+	@Override
+	public boolean isBlank() {
+		return (!front.isWrittenOn() && !back.isWrittenOn());
+	}
 }
