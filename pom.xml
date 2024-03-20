@@ -122,7 +122,7 @@
 		<dependency>
 			<groupId>com.github.BlueMap-Minecraft</groupId>
 			<artifactId>BlueNBT</artifactId>
-			<version>v2.1.0</version>
+			<version>v2.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bstats</groupId>
