@@ -56,6 +56,7 @@ public class Core {
 		try {
 			for (BlockEntity blockEntity : mcaRegion.getBlockEntities(config)) {
 				if (blockEntity.isInvalidSign()) continue;
+				if (config.areBlankSignsIgnored() && blockEntity.isBlank()) continue;
 
 				final HtmlMarker htmlMarker = HtmlMarker.builder()
 						.label(blockEntity.getLabel())
