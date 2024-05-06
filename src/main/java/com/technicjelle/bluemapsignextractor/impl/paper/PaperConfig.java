@@ -12,6 +12,7 @@ public class PaperConfig implements Config {
 	private boolean defaultHidden;
 	private double maxDistance;
 	private boolean suppressWarnings;
+	private boolean ignoreBlankSigns;
 
 	public PaperConfig(JavaPlugin plugin) {
 		loadFromPlugin(plugin);
@@ -33,6 +34,7 @@ public class PaperConfig implements Config {
 		defaultHidden = plugin.getConfig().getBoolean("DefaultHidden", false);
 		maxDistance = plugin.getConfig().getDouble("MaxDistance", 0.0);
 		suppressWarnings = plugin.getConfig().getBoolean("SuppressWarnings", false);
+		ignoreBlankSigns = plugin.getConfig().getBoolean("IgnoreBlankSigns", false);
 	}
 
 	@Override
@@ -58,5 +60,10 @@ public class PaperConfig implements Config {
 	@Override
 	public boolean areWarningsAllowed() {
 		return !suppressWarnings;
+	}
+
+	@Override
+	public boolean areBlankSignsIgnored() {
+		return ignoreBlankSigns;
 	}
 }
