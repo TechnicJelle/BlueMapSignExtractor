@@ -92,7 +92,7 @@
 		<dependency>
 			<groupId>com.github.TechnicJelle</groupId>
 			<artifactId>UpdateCheckerJava</artifactId>
-			<version>v2.3</version>
+			<version>v2.5</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
