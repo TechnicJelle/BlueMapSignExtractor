@@ -27,4 +27,9 @@ public class MockConfig implements Config {
 	public boolean areWarningsAllowed() {
 		return true;
 	}
+
+	@Override
+	public boolean areBlankSignsIgnored() {
+		return false;
+	}
 }
