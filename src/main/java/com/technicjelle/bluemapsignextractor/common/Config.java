@@ -12,4 +12,6 @@ public interface Config {
 	double getMaxDistance();
 
 	boolean areWarningsAllowed();
+
+	boolean areBlankSignsIgnored();
 }
