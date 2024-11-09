@@ -1,6 +1,6 @@
 package com.technicjelle.bluemapsignextractor.impl.paper;
 
-import com.technicjelle.BMCopy;
+import com.technicjelle.BMUtils.BMCopy;
 import com.technicjelle.UpdateChecker;
 import com.technicjelle.bluemapsignextractor.common.Core;
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class BlueMapSignExtractor extends JavaPlugin {
@@ -80,13 +79,13 @@ public final class BlueMapSignExtractor extends JavaPlugin {
 	}
 
 	public static Optional<Path> findRegionFolder(Path saveFolder) {
-		//Breath-first search to find the region folder
+		//Breath-first search to find the "region" folder
 		Queue<Path> queue = new LinkedList<>();
 		queue.add(saveFolder);
 		while (!queue.isEmpty()) {
 			Path current = queue.poll();
 			try (Stream<Path> allFilesStream = Files.list(current)) {
-				Collection<Path> dirs = allFilesStream.filter(Files::isDirectory).collect(Collectors.toList());
+				Collection<Path> dirs = allFilesStream.filter(Files::isDirectory).toList();
 				for (Path path : dirs) {
 					if (path.endsWith("region")) return Optional.of(path);
 					queue.add(path);
