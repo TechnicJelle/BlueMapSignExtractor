@@ -12,6 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class MC_1_20_4_Sign extends BlockEntity {
 	private static class Side {
+		private static final String KEY_TEXT = "text";
+		private static final JsonParser JSON_PARSER = new JsonParser();
+
 		@NBTName("messages")
 		private String[] messages;
 
@@ -21,30 +24,27 @@ public class MC_1_20_4_Sign extends BlockEntity {
 		@NBTName("has_glowing_text")
 		private boolean isGlowing;
 
-		public static String unJSON(String text) {
+		public static @Nullable String unJSON(String text) {
 			//Remove surrounding quotation marks and handle escaped characters
 			try {
-				final String key = "text";
-				final JsonParser parser = new JsonParser();
-
 				//TODO: This text might have extra JSON in it, like colour overrides.
 				// Currently we just ignore everything but the text,
 				// but perhaps we should parse it properly and return the coloured text.
 				// Test `test_MC_1_20_4_SignWithCustomJSON` has an example of this.
-				final JsonObject o = parser.parse("{\"" + key + "\":" + text + "}").getAsJsonObject();
-				return o.get(key).getAsString();
+				final JsonObject o = JSON_PARSER.parse("{\"" + KEY_TEXT + "\":" + text + "}").getAsJsonObject();
+				return o.get(KEY_TEXT).getAsString();
 			} catch (UnsupportedOperationException e) {
 				//If the text could not be parsed by wrapping it in JSON, then it might BE a JSON already.
-				//Which means it likely has colour codes or other formatting.
-				//We can use 1.13's parser for that.
-				//TODO: However, in some rare cases, the JSON might not even HAVE a "text" key, so we need to catch that.
+				// Which means it likely has colour codes or other formatting.
+				// We can actually use 1.13's parser for that.
 				return MC_1_13_2_Sign.unJSON(text);
 			}
 		}
 
 		public boolean isWrittenOn() {
 			for (String message : messages) {
-				if (!unJSON(message).isBlank()) {
+				final @Nullable String unJSON = unJSON(message);
+				if (unJSON != null && !unJSON.isBlank()) {
 					return true;
 				}
 			}
@@ -61,8 +61,8 @@ public class MC_1_20_4_Sign extends BlockEntity {
 
 		public @Nullable String getLabel() {
 			for (String message : messages) {
-				final String unJSON = unJSON(message);
-				if (!unJSON.isBlank()) {
+				final @Nullable String unJSON = unJSON(message);
+				if (unJSON != null && !unJSON.isBlank()) {
 					return unJSON;
 				}
 			}
