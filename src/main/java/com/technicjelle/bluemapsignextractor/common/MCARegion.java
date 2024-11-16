@@ -132,9 +132,9 @@ public class MCARegion {
 					if (newChunkClass.getJavaType() != chunkClass.getJavaType()) {
 						if (config.areWarningsAllowed())
 							logDebugMessage(x, z, Level.FINE, "Significantly different data versions between previous and next chunks.\n" +
-									"\tPrevious: " + chunkClass + "\n" +
-									"\tNext: " + newChunkClass + "\n" +
-									"\tSwitching loader...");
+															  "\tPrevious: " + chunkClass + "\n" +
+															  "\tNext: " + newChunkClass + "\n" +
+															  "\tSwitching loader...");
 						chunkClass = newChunkClass;
 						//Load chunk again, with the new class
 						chunk = loadChunk(chunkClass.getJavaType(), compression, chunkDataBuffer, size);
@@ -151,16 +151,16 @@ public class MCARegion {
 						}
 					} catch (NullPointerException e) {
 						logDebugMessage(x, z, Level.SEVERE, "Failed to conclude ChunkClass due to a NullPointerException in the isGenerated() call! Skipping...\n" +
-								"\tChunk class: " + chunkClass);
+															"\tChunk class: " + chunkClass);
 						continue;
 					}
 
 					BlockEntity[] chunkBlockEntities = chunk.getBlockEntities();
 					if (chunkBlockEntities == null) {
 						logDebugMessage(x, z, Level.SEVERE, "Chunk's BlockEntities was null! Skipping...\n" +
-								"\tChunk class: " + chunkClass + "\n" +
-								"\tChunk generation status: " + chunk.getStatus() + "\n" +
-								"\tChunk is generated: " + chunk.isGenerated());
+															"\tChunk class: " + chunkClass + "\n" +
+															"\tChunk generation status: " + chunk.getStatus() + "\n" +
+															"\tChunk is generated: " + chunk.isGenerated());
 						continue;
 					}
 
@@ -180,17 +180,12 @@ public class MCARegion {
 
 	private static Compression concludeCompression(byte[] data) throws UnsupportedEncodingException {
 		int compressionTypeId = data[4];
-		switch (compressionTypeId) {
-			case 0:
-			case 3:
-				return Compression.NONE;
-			case 1:
-				return Compression.GZIP;
-			case 2:
-				return Compression.DEFLATE;
-			default:
-				throw new UnsupportedEncodingException("Unknown chunk compression-id: " + compressionTypeId);
-		}
+		return switch (compressionTypeId) {
+			case 0, 3 -> Compression.NONE;
+			case 1 -> Compression.GZIP;
+			case 2 -> Compression.DEFLATE;
+			default -> throw new UnsupportedEncodingException("Unknown chunk compression-id: " + compressionTypeId);
+		};
 	}
 
 	private static <T> T loadChunk(Class<T> type, Compression compression, byte[] data, int size) throws IOException {
