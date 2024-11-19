@@ -96,7 +96,10 @@ public class WorldWatcher extends Thread {
 			public void run() {
 				synchronized (WorldWatcher.this) {
 					try {
-						Region region = world.getRegion(regionPos.getX(), regionPos.getY());
+						//TODO: this cast should be able to be removed in BlueMap 5.6
+						// https://github.com/BlueMap-Minecraft/BlueMap/commit/93d2dc54ba13673123c26c66f8807291dc7aa6ae
+						@SuppressWarnings("unchecked")
+						Region<Chunk> region = (Region<Chunk>) world.getRegion(regionPos.getX(), regionPos.getY());
 						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
 							chunk.iterateBlockEntities(blockEntity -> {
 								if (blockEntity instanceof SignBlockEntity signBlockEntity) {
