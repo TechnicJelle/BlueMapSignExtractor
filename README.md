@@ -9,7 +9,7 @@ Displays signs on your [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) a
 
 This is a Native BlueMap Addon, so it should be compatible with
 all platforms and all versions that BlueMap supports, including the CLI!\
-Just put the `.jar` file in the `addons/` directory, and it should work out of the box.
+Just put the `.jar` file in BlueMap's `packs/` directory, and it should work out of the box.
 
 To reload this addon, just reload BlueMap itself with `/bluemap reload`.
 
