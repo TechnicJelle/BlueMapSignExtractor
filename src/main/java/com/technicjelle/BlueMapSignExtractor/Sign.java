@@ -37,8 +37,8 @@ public class Sign {
 		return htmlMarker;
 	}
 
-	public String createKey() {
-		return "sign@" + position;
+	public String createKey(String prefix) {
+		return prefix + position;
 	}
 
 	private String getFormattedHTML() {

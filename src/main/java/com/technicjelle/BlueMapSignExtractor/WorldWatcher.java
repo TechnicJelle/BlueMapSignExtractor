@@ -89,13 +89,18 @@ public class WorldWatcher extends Thread {
 		TimerTask task = scheduledUpdates.remove(regionPos);
 		if (task != null) task.cancel();
 
-		markerSet.getMarkers().clear();
-
 		task = new TimerTask() {
 			@Override
 			public void run() {
 				synchronized (WorldWatcher.this) {
 					try {
+						String regionPrefix = "sign#" + regionPos.getX() + "|" + regionPos.getY() + "@";
+
+						// First, remove all markers from this region
+						Map<String, Marker> markers = markerSet.getMarkers();
+						markers.keySet().removeIf(key -> key.startsWith(regionPrefix));
+
+						// Then, add them back
 						//TODO: this cast should be able to be removed in BlueMap 5.6
 						// https://github.com/BlueMap-Minecraft/BlueMap/commit/93d2dc54ba13673123c26c66f8807291dc7aa6ae
 						@SuppressWarnings("unchecked")
@@ -107,7 +112,7 @@ public class WorldWatcher extends Thread {
 									// If the config is set to ignore blank signs, skip them
 									if (config.getIgnoreBlankSigns() && sign.isBlank()) return;
 									Marker marker = sign.createMarker(config);
-									markerSet.put(sign.createKey(), marker);
+									markerSet.put(sign.createKey(regionPrefix), marker);
 								}
 							});
 						});
