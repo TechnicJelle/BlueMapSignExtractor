@@ -4,6 +4,7 @@ import com.flowpowered.math.vector.Vector2i;
 import de.bluecolored.bluemap.api.BlueMapWorld;
 import de.bluecolored.bluemap.api.markers.Marker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
+import de.bluecolored.bluemap.common.api.BlueMapMapImpl;
 import de.bluecolored.bluemap.common.api.BlueMapWorldImpl;
 import de.bluecolored.bluemap.core.util.WatchService;
 import de.bluecolored.bluemap.core.world.Chunk;
@@ -26,6 +27,7 @@ import static com.technicjelle.BlueMapSignExtractor.BlueMapSignExtractor.logger;
  * @see de.bluecolored.bluemap.common.plugin.MapUpdateService
  */
 public class WorldWatcher extends Thread {
+	private final BlueMapWorld apiWorld;
 	private final World world;
 	private final WatchService<Vector2i> watchService;
 
@@ -40,6 +42,7 @@ public class WorldWatcher extends Thread {
 	private final Config config;
 
 	public WorldWatcher(BlueMapWorld apiWorld, Config config) throws IOException {
+		this.apiWorld = apiWorld;
 		this.world = ((BlueMapWorldImpl) apiWorld).world();
 		this.closed = false;
 		this.scheduledUpdates = new HashMap<>();
@@ -116,6 +119,10 @@ public class WorldWatcher extends Thread {
 								}
 							});
 						});
+
+						// Force save the markers to the storage
+						// This is especially important for the CLI, which otherwise would not save the markers for a long time
+						saveMarkers(); //TODO: Should be done less (only when all regions are done)
 					} catch (IOException e) {
 						logger.logError("Failed to get region" + regionPos, e);
 					}
@@ -137,5 +144,9 @@ public class WorldWatcher extends Thread {
 		} catch (Exception e) {
 			logger.logError("Failed to close watch service", e);
 		}
+	}
+
+	private void saveMarkers() {
+		apiWorld.getMaps().forEach(apiMap -> ((BlueMapMapImpl) apiMap).map().saveMarkerState());
 	}
 }

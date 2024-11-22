@@ -55,6 +55,7 @@ public class BlueMapSignExtractor implements Runnable {
 		}
 
 		for (BlueMapWorld apiWorld : api.getWorlds()) {
+			// no need to watch worlds that aren't rendered by bluemap anyway
 			if (apiWorld.getMaps().isEmpty()) continue;
 
 			try {
