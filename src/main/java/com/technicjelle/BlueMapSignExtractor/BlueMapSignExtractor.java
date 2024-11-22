@@ -62,11 +62,11 @@ public class BlueMapSignExtractor implements Runnable {
 				watcher.start();
 				worldWatchers.add(watcher);
 			} catch (IOException ex) {
-				logger.logError("Failed to create update-watcher for map: " + apiWorld.getId() +
-								" (This means the map might not automatically update)", ex);
+				logger.logError("Failed to create update-watcher for world: " + apiWorld.getId() +
+								" (This means the signs might not automatically update)", ex);
 			} catch (UnsupportedOperationException ex) {
-				logger.logError("Update-watcher for map '" + apiWorld.getId() + "' is not supported for the world-type." +
-								" (This means the map might not automatically update)", ex);
+				logger.logError("Update-watcher for world '" + apiWorld.getId() + "' is not supported for the world-type." +
+								" (This means the signs might not automatically update)", ex);
 			}
 		}
 	};
