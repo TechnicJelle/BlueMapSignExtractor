@@ -106,10 +106,7 @@ public class WorldWatcher extends Thread {
 						markers.keySet().removeIf(key -> key.startsWith(regionPrefix));
 
 						// Then, add them back
-						//TODO: this cast should be able to be removed in BlueMap 5.6
-						// https://github.com/BlueMap-Minecraft/BlueMap/commit/93d2dc54ba13673123c26c66f8807291dc7aa6ae
-						@SuppressWarnings("unchecked")
-						Region<Chunk> region = (Region<Chunk>) world.getRegion(regionPos.getX(), regionPos.getY());
+						Region<Chunk> region = world.getRegion(regionPos.getX(), regionPos.getY());
 						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
 							chunk.iterateBlockEntities(blockEntity -> {
 								if (blockEntity instanceof SignBlockEntity signBlockEntity) {
