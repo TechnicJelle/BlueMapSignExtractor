@@ -13,14 +13,19 @@ import java.nio.file.Path;
 public class Config {
 	private static final String fileName = "settings.conf";
 
+	@SuppressWarnings("unused")
 	private @Nullable String markerSetName;
 
+	@SuppressWarnings("unused")
 	private @Nullable Boolean toggleable;
 
+	@SuppressWarnings("unused")
 	private @Nullable Boolean defaultHidden;
 
+	@SuppressWarnings("unused")
 	private @Nullable Double maxDistance;
 
+	@SuppressWarnings("unused")
 	private @Nullable Boolean ignoreBlankSigns;
 
 	public static Config load(BlueMapAPI api) throws IOException {
