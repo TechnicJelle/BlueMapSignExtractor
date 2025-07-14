@@ -11,7 +11,6 @@ import java.util.List;
 
 public class SignSide {
 	private static final String KEY_TEXT = "text";
-	private static final JsonParser JSON_PARSER = new JsonParser();
 	private static final Gson GSON = new Gson();
 
 	@SuppressWarnings("unused")
@@ -69,7 +68,7 @@ public class SignSide {
 			// Currently we just ignore everything but the text,
 			// but perhaps we should parse it properly and return the coloured text.
 			// Test `test_MC_1_20_4_SignWithCustomJSON` has an example of this.
-			final JsonObject o = JSON_PARSER.parse("{\"" + KEY_TEXT + "\":" + text + "}").getAsJsonObject();
+			final JsonObject o = JsonParser.parseString("{\"" + KEY_TEXT + "\":" + text + "}").getAsJsonObject();
 			return o.get(KEY_TEXT).getAsString();
 		} catch (UnsupportedOperationException e) {
 			//If the text could not be parsed by wrapping it in JSON, then it might BE a JSON already.
