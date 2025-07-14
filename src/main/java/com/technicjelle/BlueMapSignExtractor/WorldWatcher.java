@@ -102,8 +102,7 @@ public class WorldWatcher extends Thread {
 						String regionPrefix = "sign#" + regionPos.getX() + "|" + regionPos.getY() + "@";
 
 						// First, remove all markers from this region
-						Map<String, Marker> markers = markerSet.getMarkers();
-						markers.keySet().removeIf(key -> key.startsWith(regionPrefix));
+						markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
 
 						// Then, add them back
 						Region<Chunk> region = world.getRegion(regionPos.getX(), regionPos.getY());
