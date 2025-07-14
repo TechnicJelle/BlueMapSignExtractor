@@ -24,10 +24,18 @@ public class SignSide {
 
 	private final boolean isWrittenOn;
 
-	public SignSide(SignBlockEntity.TextData textData) {
-		this.messages = textData.getMessages().stream().map(SignSide::unJSON).toList();
-		this.colour = SignColour.get(textData.getColor());
-		this.isGlowing = textData.isHasGlowingText();
+	public SignSide(@Nullable SignBlockEntity.TextData textData) {
+		if (textData == null) {
+			this.messages = List.of();
+			this.colour = SignColour.BLACK;
+			this.isGlowing = false;
+		} else {
+			//TODO: Some older versions save the messages as some kind of JSON, so those have to be unJSON'd
+			// So I should figure out a proper way to do this.
+			this.messages = textData.getMessages();
+			this.colour = SignColour.get(textData.getColor());
+			this.isGlowing = textData.isHasGlowingText();
+		}
 		this.isWrittenOn = setIsWrittenOn();
 	}
 
