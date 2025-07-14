@@ -4,7 +4,7 @@ package com.technicjelle.BlueMapSignExtractor;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import de.bluecolored.bluemap.core.world.block.entity.SignBlockEntity;
+import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;

@@ -4,7 +4,7 @@ package com.technicjelle.BlueMapSignExtractor;
 import com.flowpowered.math.vector.Vector3d;
 import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.Marker;
-import de.bluecolored.bluemap.core.world.block.entity.SignBlockEntity;
+import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class Sign {

@@ -10,7 +10,7 @@ import de.bluecolored.bluemap.core.util.WatchService;
 import de.bluecolored.bluemap.core.world.Chunk;
 import de.bluecolored.bluemap.core.world.Region;
 import de.bluecolored.bluemap.core.world.World;
-import de.bluecolored.bluemap.core.world.block.entity.SignBlockEntity;
+import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
