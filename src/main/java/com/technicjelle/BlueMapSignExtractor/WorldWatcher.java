@@ -108,15 +108,19 @@ public class WorldWatcher extends Thread {
 						// Then, add them back
 						Region<Chunk> region = world.getRegion(regionPos.getX(), regionPos.getY());
 						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
-							chunk.iterateBlockEntities(blockEntity -> {
-								if (blockEntity instanceof SignBlockEntity signBlockEntity) {
-									Sign sign = new Sign(signBlockEntity);
-									// If the config is set to ignore blank signs, skip them
-									if (config.getIgnoreBlankSigns() && sign.isBlank()) return;
-									Marker marker = sign.createMarker(config);
-									markerSet.put(sign.createKey(regionPrefix), marker);
-								}
-							});
+							try {
+								chunk.iterateBlockEntities(blockEntity -> {
+									if (blockEntity instanceof SignBlockEntity signBlockEntity) {
+										Sign sign = new Sign(signBlockEntity);
+										// If the config is set to ignore blank signs, skip them
+										if (config.getIgnoreBlankSigns() && sign.isBlank()) return;
+										Marker marker = sign.createMarker(config);
+										markerSet.put(sign.createKey(regionPrefix), marker);
+									}
+								});
+							} catch (Exception e) {
+								throw new RuntimeException("Chunk X: " + chunkX + ", Z: " + chunkZ, e);
+							}
 						});
 
 						// Force save the markers to the storage
