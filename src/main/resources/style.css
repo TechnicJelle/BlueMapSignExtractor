@@ -4,10 +4,35 @@
 }
 
 .sign {
+	/* Reset all margins & paddings */
+	margin: 0;
+	padding: 0;
+
 	/* Text settings */
 	font-family: Minecraft, sans-serif;
 	font-size: 17px;
+
+	/* Misc settings */
+	line-height: 1;
+	box-sizing: border-box;
+	white-space: nowrap;
+	transform: translate(-50%, -50%);
+
+	/* Double sided signs */
+	display: grid;
+	gap: 0.5em;
+}
+
+/* Reset all margins & paddings */
+.sign * {
+	margin: 0;
+	padding: 0;
+}
+
+.sign-side {
+	/* Size settings */
 	width: 144px;
+	aspect-ratio: 24 / 12;
 
 	/* Sign texture */
 	background: center / cover no-repeat url("sign_oak.png");
@@ -23,19 +48,10 @@
 	display: grid;
 	place-content: center;
 	text-align: center;
-
-	/* Misc settings */
-	line-height: 1;
-	box-sizing: border-box;
-	aspect-ratio: 24 / 12;
-	white-space: nowrap;
-	transform: translate(-50%, -50%);
 }
 
-.sign > * {
-	margin: 0;
-	padding: 0;
-	color: black;
+.sign-side > span {
+	/* Always show the full four lines, even if they're empty */
 	min-height: 1em;
 }
 
