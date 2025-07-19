@@ -11,6 +11,7 @@ import de.bluecolored.bluemap.core.world.Chunk;
 import de.bluecolored.bluemap.core.world.Region;
 import de.bluecolored.bluemap.core.world.World;
 import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
+import de.bluecolored.bluemap.core.world.mca.chunk.MCAChunk;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -108,9 +109,11 @@ public class WorldWatcher extends Thread {
 						Region<Chunk> region = world.getRegion(regionPos.getX(), regionPos.getY());
 						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
 							try {
+								//The signs need to know the data version, so they can use the correct String parsing method
+								final int dataVersion = chunk instanceof MCAChunk mcaChunk ? mcaChunk.getDataVersion() : -1;
 								chunk.iterateBlockEntities(blockEntity -> {
 									if (blockEntity instanceof SignBlockEntity signBlockEntity) {
-										Sign sign = new Sign(signBlockEntity);
+										Sign sign = new Sign(signBlockEntity, dataVersion);
 										// If the config is set to ignore blank signs, skip them
 										if (config.getIgnoreBlankSigns() && sign.isBlank()) return;
 										Marker marker = sign.createMarker(config);

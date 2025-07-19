@@ -6,20 +6,32 @@ import de.bluecolored.bluemap.api.markers.HtmlMarker;
 import de.bluecolored.bluemap.api.markers.Marker;
 import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Sign {
-	private final SignSide front;
-	private final SignSide back;
+	private final @Nullable SignSide front;
+	private final @Nullable SignSide back;
 	private final Vector3d position;
 
-	public Sign(SignBlockEntity signBlockEntity) {
-		this.front = new SignSide(signBlockEntity.getFrontText());
-		this.back = new SignSide(signBlockEntity.getBackText());
+	public Sign(SignBlockEntity signBlockEntity, int dataVersion) {
+		@Nullable SignBlockEntity.TextData frontText = signBlockEntity.getFrontText();
+		if (frontText == null) {
+			this.front = null;
+		} else {
+			this.front = new SignSide(frontText, dataVersion);
+		}
+		@Nullable SignBlockEntity.TextData backText = signBlockEntity.getBackText();
+		if (backText == null) {
+			this.back = null;
+		} else {
+			this.back = new SignSide(backText, dataVersion);
+		}
 		this.position = new Vector3d(signBlockEntity.getX() + 0.5, signBlockEntity.getY() + 0.5, signBlockEntity.getZ() + 0.5); // centre of the block
 	}
 
 	public boolean isBlank() {
-		return !front.isWrittenOn() && !back.isWrittenOn();
+		//if the front is null or has not been written on AND if the back is null or has not been written on
+		return (front == null || !front.isWrittenOn()) && (back == null || !back.isWrittenOn());
 	}
 
 	public Marker createMarker(Config config) {
@@ -43,22 +55,22 @@ public class Sign {
 
 	private String getFormattedHTML() {
 		final StringBuilder sb = new StringBuilder();
-		if (front.isWrittenOn()) {
+		if (front != null && front.isWrittenOn()) {
 			sb.append(front.getFormattedHTML());
 		}
-		if (back.isWrittenOn()) {
+		if (back != null && back.isWrittenOn()) {
 			sb.append(back.getFormattedHTML());
 		}
 		return sb.toString().stripTrailing();
 	}
 
 	private @NotNull String getLabel() {
-		if (front.isWrittenOn()) {
-			final String frontLabel = front.getLabel();
+		if (front != null && front.isWrittenOn()) {
+			final @Nullable String frontLabel = front.getLabel();
 			if (frontLabel != null) return frontLabel;
 		}
-		if (back.isWrittenOn()) {
-			final String backLabel = back.getLabel();
+		if (back != null && back.isWrittenOn()) {
+			final @Nullable String backLabel = back.getLabel();
 			if (backLabel != null) return backLabel;
 		}
 		return "Blank sign at " + position;

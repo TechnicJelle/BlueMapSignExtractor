@@ -1,9 +1,11 @@
 package com.technicjelle.BlueMapSignExtractor;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public enum SignColour {
+public enum TextColour {
 	WHITE("white", "#646464", "#ffffff", "#656565"),
 	ORANGE("orange", "#64280c", "#fc671f", "#65280c"),
 	MAGENTA("magenta", "#640064", "#fc00fc", "#650065"),
@@ -21,27 +23,35 @@ public enum SignColour {
 	RED("red", "#640000", "#fc0000", "#650000"),
 	BLACK("black", "#000000", "#000000", "#ede8ca");
 
-	private static final Map<String, SignColour> BY_NAME = new HashMap<>();
+	private static final Map<String, TextColour> BY_NAME = new HashMap<>();
 
 	static {
-		for (SignColour c : values()) {
+		for (TextColour c : values()) {
 			BY_NAME.put(c.minecraftName, c);
 		}
 	}
 
 	private final String minecraftName;
-	public final String standard;
-	public final String glowCenter;
-	public final String glowOutline;
+	private final String standard;
+	private final String glowCenter;
+	private final String glowOutline;
 
-	SignColour(String minecraftName, String standard, String glowCenter, String glowOutline) {
+	TextColour(String minecraftName, String standard, String glowCenter, String glowOutline) {
 		this.minecraftName = minecraftName;
 		this.standard = standard;
 		this.glowCenter = glowCenter;
 		this.glowOutline = glowOutline;
 	}
 
-	public static SignColour get(String name) {
+	public static @Nullable TextColour get(String name) {
 		return BY_NAME.get(name);
+	}
+
+	public String getHTMLAttributes(boolean isGlowing, String additionalClasses) {
+		if (isGlowing) {
+			return "class='" + additionalClasses + " glowing' style='color:" + glowCenter + ";--sign-glow-colour:" + glowOutline + ";'";
+		} else {
+			return "class='" + additionalClasses + "' style='color:" + standard + ";'";
+		}
 	}
 }
