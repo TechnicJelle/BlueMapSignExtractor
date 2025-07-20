@@ -1,6 +1,13 @@
 @font-face {
 	font-family: Minecraft;
 	src: url("Minecraft.otf");
+	font-weight: normal;
+}
+
+@font-face {
+	font-family: Minecraft;
+	src: url("Minecraft-Bold.otf");
+	font-weight: bold;
 }
 
 .sign {

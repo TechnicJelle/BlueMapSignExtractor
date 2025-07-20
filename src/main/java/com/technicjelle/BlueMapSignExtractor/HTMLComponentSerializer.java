@@ -1,8 +1,13 @@
 package com.technicjelle.BlueMapSignExtractor;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HTMLComponentSerializer {
 	//TODO: Do not use a Plain Text Serializer in the HTML Serializer.
@@ -17,24 +22,42 @@ public class HTMLComponentSerializer {
 
 	public String serialize(Component component) {
 		//Get Text
-		final String text = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
+		String text = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
+
+		//Styles
+		final Style textStyle = component.style();
+		final List<String> cssStyles = new ArrayList<>();
 
 		//Get Colour
-		TextColor componentColour = component.color();
-		final String colour;
+		TextColor componentColour = textStyle.color();
 		if (componentColour != null) {
-			colour = componentColour.asHexString();
-		} else {
-			colour = null;
+			cssStyles.add("color: " + componentColour.asHexString() + ";");
+		}
+
+		//Text Decorations
+		if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
+			//TODO: Handle this better
+			text = "█".repeat(text.length()); //replace the text with blocks
+			cssStyles.add("");
+		} else if (textStyle.hasDecoration(TextDecoration.BOLD)) {
+			cssStyles.add("font-weight: bold;");
+		} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+			cssStyles.add("text-decoration: line-through underline;");
+		} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
+			cssStyles.add("text-decoration: line-through;");
+		} else if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+			cssStyles.add("text-decoration: underline;");
+		} else if (textStyle.hasDecoration(TextDecoration.ITALIC)) {
+			cssStyles.add("font-style: italic;");
 		}
 
 		//Generate HTML
-		if (colour != null) {
-			//The colour for this specific line has been overridden
-			return "<span style='color:" + colour + ";'>" + text + "</span>";
-		} else {
-			//There are no overrides, so glowing here is not necessary. It is handled by the parent sign
+		if (cssStyles.isEmpty()) {
+			//There are no overrides. The styles are handled by the parent sign
 			return "<span>" + text + "</span>";
+		} else {
+			//The styles for this specific line have been overridden
+			return "<span style='" + String.join(" ", cssStyles) + "'>" + text + "</span>";
 		}
 	}
 }
