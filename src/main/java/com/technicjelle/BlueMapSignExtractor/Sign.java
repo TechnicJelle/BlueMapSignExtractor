@@ -9,14 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class Sign {
-	private final @Nullable SignSide front;
+	private final @NotNull SignSide front;
 	private final @Nullable SignSide back;
 	private final Vector3d position;
 
 	public Sign(SignBlockEntity signBlockEntity, int dataVersion) {
 		@Nullable SignBlockEntity.TextData frontText = signBlockEntity.getFrontText();
 		if (frontText == null) {
-			this.front = null;
+			this.front = new SignSide();
 		} else {
 			this.front = new SignSide(frontText, dataVersion);
 		}
@@ -31,14 +31,14 @@ public class Sign {
 
 	public boolean isBlank() {
 		//if the front is null or has not been written on AND if the back is null or has not been written on
-		return (front == null || !front.isWrittenOn()) && (back == null || !back.isWrittenOn());
+		return !front.isWrittenOn() && (back == null || !back.isWrittenOn());
 	}
 
 	public Marker createMarker(Config config) {
 		final HtmlMarker htmlMarker = HtmlMarker.builder()
 				.label(getLabel())
 				.position(position)
-				.html(getFormattedHTML())
+				.html(getFormattedHTML(config))
 				.styleClasses("sign")
 				.build();
 
@@ -53,9 +53,9 @@ public class Sign {
 		return prefix + position;
 	}
 
-	private String getFormattedHTML() {
+	private String getFormattedHTML(Config config) {
 		final StringBuilder sb = new StringBuilder();
-		if (front != null && front.isWrittenOn()) {
+		if (front.isWrittenOn() || !config.getIgnoreBlankSigns()) {
 			sb.append(front.getFormattedHTML());
 		}
 		if (back != null && back.isWrittenOn()) {
@@ -65,7 +65,7 @@ public class Sign {
 	}
 
 	private @NotNull String getLabel() {
-		if (front != null && front.isWrittenOn()) {
+		if (front.isWrittenOn()) {
 			final @Nullable String frontLabel = front.getLabel();
 			if (frontLabel != null) return frontLabel;
 		}

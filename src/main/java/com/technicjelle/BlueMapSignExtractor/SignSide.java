@@ -14,6 +14,13 @@ public class SignSide {
 
 	private final boolean isWrittenOn;
 
+	public SignSide() {
+		this.messages = List.of();
+		this.signColour = TextColour.BLACK;
+		this.isGlowing = false;
+		this.isWrittenOn = false;
+	}
+
 	public SignSide(@NotNull SignBlockEntity.TextData textData, int dataVersion) {
 		BlueMapSignExtractor.logger.logInfo("----------------------------------------------------------------------------------------------------");
 		this.messages = textData.getMessages().stream().map(m -> new SignLine(m, dataVersion)).toList();
