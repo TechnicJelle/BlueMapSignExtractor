@@ -1,19 +1,15 @@
 package com.technicjelle.BlueMapSignExtractor;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HTMLComponentSerializer {
-	//TODO: Do not use a Plain Text Serializer in the HTML Serializer.
-	//Do it custom, and properly support nesting.
-	private final static PlainTextComponentSerializer PLAIN_TEXT_COMPONENT_SERIALIZER = PlainTextComponentSerializer.plainText();
-
 	private static final HTMLComponentSerializer INSTANCE = new HTMLComponentSerializer();
 
 	public static HTMLComponentSerializer html() {
@@ -21,43 +17,76 @@ public class HTMLComponentSerializer {
 	}
 
 	public String serialize(Component component) {
-		//Get Text
-		String text = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
+		StringBuilder sb = new StringBuilder();
 
-		//Styles
-		final Style textStyle = component.style();
+		loop(sb, component);
+
+		return sb.toString();
+	}
+
+	private void loop(StringBuilder sb, Component component) {
+		String text;
+		final List<String> cssClasses = new ArrayList<>();
 		final List<String> cssStyles = new ArrayList<>();
 
-		//Get Colour
-		TextColor componentColour = textStyle.color();
-		if (componentColour != null) {
-			cssStyles.add("color: " + componentColour.asHexString() + ";");
+		//Data Extraction
+		{
+			//Text
+			{
+				if (component instanceof TextComponent textComponent) {
+					text = textComponent.content();
+				} else {
+					BlueMapSignExtractor.logger.logError("component was not a TextComponent!?");
+					text = "";
+				}
+			}
+
+			//Styles
+			{
+				final Style textStyle = component.style();
+
+				//Colour
+				TextColor componentColour = textStyle.color();
+				if (componentColour != null) {
+					cssStyles.add("color: " + componentColour.asHexString() + ";");
+				}
+
+				//Decorations
+				if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
+					cssClasses.add("obfuscated");
+				} else if (textStyle.hasDecoration(TextDecoration.BOLD)) {
+					cssStyles.add("font-weight: bold;");
+				} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+					cssStyles.add("text-decoration: line-through underline;");
+				} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
+					cssStyles.add("text-decoration: line-through;");
+				} else if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+					cssStyles.add("text-decoration: underline;");
+				} else if (textStyle.hasDecoration(TextDecoration.ITALIC)) {
+					cssStyles.add("font-style: italic;");
+				}
+			}
 		}
 
-		//Text Decorations
-		if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
-			//TODO: Handle this better
-			text = "█".repeat(text.length()); //replace the text with blocks
-			cssStyles.add("");
-		} else if (textStyle.hasDecoration(TextDecoration.BOLD)) {
-			cssStyles.add("font-weight: bold;");
-		} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-			cssStyles.add("text-decoration: line-through underline;");
-		} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
-			cssStyles.add("text-decoration: line-through;");
-		} else if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-			cssStyles.add("text-decoration: underline;");
-		} else if (textStyle.hasDecoration(TextDecoration.ITALIC)) {
-			cssStyles.add("font-style: italic;");
+		sb.append("<span ");
+		if (!cssClasses.isEmpty()) {
+			sb.append("class='");
+			sb.append(String.join(" ", cssClasses));
+			sb.append("' ");
+		}
+		if (!cssStyles.isEmpty()) {
+			sb.append("style='");
+			sb.append(String.join(" ", cssStyles));
+			sb.append("'");
+		}
+		sb.append(">");
+
+		sb.append(text);
+
+		for (Component child : component.children()) {
+			loop(sb, child);
 		}
 
-		//Generate HTML
-		if (cssStyles.isEmpty()) {
-			//There are no overrides. The styles are handled by the parent sign
-			return "<span>" + text + "</span>";
-		} else {
-			//The styles for this specific line have been overridden
-			return "<span style='" + String.join(" ", cssStyles) + "'>" + text + "</span>";
-		}
+		sb.append("</span>");
 	}
 }
