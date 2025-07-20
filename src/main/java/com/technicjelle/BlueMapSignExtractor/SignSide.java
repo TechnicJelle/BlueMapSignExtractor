@@ -9,14 +9,14 @@ import java.util.Objects;
 
 public class SignSide {
 	private final List<SignLine> messages;
-	private final @NotNull TextColour signColour;
+	private final @NotNull SignSideColour signColour;
 	private final boolean isGlowing;
 
 	private final boolean isWrittenOn;
 
 	public SignSide() {
 		this.messages = List.of();
-		this.signColour = TextColour.BLACK;
+		this.signColour = SignSideColour.BLACK;
 		this.isGlowing = false;
 		this.isWrittenOn = false;
 	}
@@ -24,14 +24,14 @@ public class SignSide {
 	public SignSide(@NotNull SignBlockEntity.TextData textData, int dataVersion) {
 		BlueMapSignExtractor.logger.logInfo("----------------------------------------------------------------------------------------------------");
 		this.messages = textData.getMessages().stream().map(m -> new SignLine(m, dataVersion)).toList();
-		this.signColour = Objects.requireNonNullElse(TextColour.get(textData.getColor()), TextColour.BLACK);
+		this.signColour = Objects.requireNonNullElse(SignSideColour.get(textData.getColor()), SignSideColour.BLACK);
 		this.isGlowing = textData.isHasGlowingText();
 		this.isWrittenOn = setIsWrittenOn();
 	}
 
 	private boolean setIsWrittenOn() {
 		for (SignLine message : messages) {
-			if (message != null && !message.text.isBlank()) {
+			if (message != null && !message.getPlainText().isBlank()) {
 				return true;
 			}
 		}
@@ -44,8 +44,8 @@ public class SignSide {
 
 	public @Nullable String getLabel() {
 		for (SignLine message : messages) {
-			if (message != null && !message.text.isBlank()) {
-				return message.text;
+			if (message != null && !message.getPlainText().isBlank()) {
+				return message.getPlainText();
 			}
 		}
 		return null;
@@ -55,7 +55,7 @@ public class SignSide {
 		final StringBuilder sb = new StringBuilder();
 		sb.append("<div ").append(signColour.getHTMLAttributes(isGlowing, "sign-side")).append(">");
 		for (SignLine message : messages) {
-			sb.append(message.formatSignLineToHTML(isGlowing)).append("\n");
+			sb.append(message.getHtml()).append("\n");
 		}
 		sb.append("</div>");
 		return sb.toString();

@@ -1,108 +1,85 @@
 package com.technicjelle.BlueMapSignExtractor;
 
 import com.google.gson.Gson;
-import org.jetbrains.annotations.Nullable;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
 public class SignLine {
-	final String text;
-	final String lineColourOverride;
+	private static final Gson GSON = new Gson();
+	private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
+	private static final PlainTextComponentSerializer PLAIN_TEXT_COMPONENT_SERIALIZER = PlainTextComponentSerializer.plainText();
+	private static final HTMLComponentSerializer HTML_COMPONENT_SERIALIZER = HTMLComponentSerializer.html();
+
+	private final @NotNull String html;
+	private final @NotNull String plainText;
 
 	public SignLine(Object message, int dataVersion) {
+		final @NotNull Component component;
+
 		switch (message) {
 			case String string:
 				//https://minecraft.wiki/w/Data_version#List_of_data_versions
 				if (dataVersion == -1) {
 					BlueMapSignExtractor.logger.logInfo("String, Not MCA, DataVersion == -1: " + string);
-					this.text = string; //We have no clue what it is, so we just let it be.
-					this.lineColourOverride = null;
+					component = Component.text(string); //We have no clue what it is, so we just let it be.
 				} else if (dataVersion >= 4298) {
-					// Text format changed from JSON (Only Quoted) to SNBT (Text Component) here: https://minecraft.wiki/w/Java_Edition_25w02a
+					// Text format changed from JSON to SNBT (Text Component) here: https://minecraft.wiki/w/Java_Edition_25w02a
+					// But this line is apparently just a simple line. More complicated lines use the `Map<>` case below.
 					BlueMapSignExtractor.logger.logInfo("String, Text Component Format: " + string);
-					this.text = string;
-					this.lineColourOverride = null; //Colour overrides are possible in this version, but will use the `Map<>` case below, instead of here.
-				} else if (dataVersion >= 3442) {
-					// Sign format changed from JSON (Full) to JSON (Only Quoted) here: https://minecraft.wiki/w/Java_Edition_23w12a
-					BlueMapSignExtractor.logger.logInfo("String, Quoted Format: " + string);
-					this.text = unQuote(string);
-					this.lineColourOverride = null; //TODO: Research how this version does colour overrides
+					component = Component.text(string);
 				} else {
-					// Sign format is JSON (Full)
+					// Sign format is JSON
 					BlueMapSignExtractor.logger.logInfo("String, JSON Format: " + string);
-					SignTextLine line = unJSON(string);
-					this.text = line.text;
-					this.lineColourOverride = line.color;
+					component = GSON_COMPONENT_SERIALIZER.deserialize(string);
 				}
 				break;
 			case List<?> list:
-				BlueMapSignExtractor.logger.logInfo("List: " + list);
-				this.text = list.toString();
-				this.lineColourOverride = null;
+				// Honestly, I don't know when this happens.
+				BlueMapSignExtractor.logger.logWarning("List: " + list);
+				component = Component.text(list.toString());
 				break;
 			case Map<?, ?> map:
-				//Text
 				BlueMapSignExtractor.logger.logInfo("Map: " + map);
-				@Nullable Object text = map.get("text");
-				if (text instanceof String textString) {
-					this.text = textString;
-				} else {
-					BlueMapSignExtractor.logger.logWarning("text was not a String!?");
-					this.text = "";
+
+				// For some reason, there is a "" key sometimes, with the text of the sign in it.
+				// Adventure cannot deal with that, so we do it manually.
+				if (map.get("") instanceof String string) {
+					component = Component.text(string);
+					break;
 				}
-				//Colour
-				@Nullable Object colour = map.get("color");
-				if (colour instanceof String colourString) {
-					this.lineColourOverride = colourString;
-				} else {
-					BlueMapSignExtractor.logger.logWarning("color was not a String!?");
-					this.lineColourOverride = null;
-				}
+
+				String json = GSON.toJson(map);
+				BlueMapSignExtractor.logger.logInfo("JSON: " + json);
+
+				component = GSON_COMPONENT_SERIALIZER.deserialize(json);
 				break;
 			case null:
 				BlueMapSignExtractor.logger.logWarning("text was null!?");
-				this.text = "";
-				this.lineColourOverride = null;
+				component = Component.empty();
 				break;
 			default:
 				BlueMapSignExtractor.logger.logWarning("Unknown: " + message);
-				this.text = message.toString(); //We have no clue what it is, so we just let it be.
-				this.lineColourOverride = null;
+				component = Component.text(message.toString()); //We have no clue what it is, so we just let it be.
 				break;
 		}
+		BlueMapSignExtractor.logger.logInfo("Component: " + component);
+		this.html = HTML_COMPONENT_SERIALIZER.serialize(component);
+		BlueMapSignExtractor.logger.logInfo("HTML: " + this.html);
+		this.plainText = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
+		BlueMapSignExtractor.logger.logInfo("Plain Text: " + this.plainText);
+		BlueMapSignExtractor.logger.logInfo("---------------------");
 	}
 
-	public String formatSignLineToHTML(boolean signIsGlowing) {
-		if (lineColourOverride != null) {
-			//The colour for this specific line has been overridden
-			@Nullable TextColour textColour = TextColour.get(lineColourOverride);
-			if (textColour != null) {
-				return "<span " + textColour.getHTMLAttributes(signIsGlowing, "") + ">" + text + "</span>";
-			} else {
-				//if the enum doesn't have it, it was probably a hex colour, so we can pass it right on through to the css
-				return "<span style='color:" + lineColourOverride + ";'>" + text + "</span>";
-			}
-		} else {
-			//There are no overrides, so glowing here is not necessary. It is handled by the parent sign
-			return "<span>" + text + "</span>";
-		}
+	public @NotNull String getHtml() {
+		return html;
 	}
 
-	private static final String KEY_TEXT = "text";
-	private static final Gson GSON = new Gson();
-
-	@SuppressWarnings("unused") //Ignore that there is no setter, because it's set through GSON
-	private static class SignTextLine {
-		private @Nullable String text;
-		private @Nullable String color;
-	}
-
-	private static String unQuote(String text) {
-		return unJSON("{\"" + KEY_TEXT + "\":" + text + "}").text;
-	}
-
-	private static SignTextLine unJSON(String json) {
-		return GSON.fromJson(json, SignTextLine.class);
+	public @NotNull String getPlainText() {
+		return plainText;
 	}
 }
