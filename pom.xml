@@ -108,8 +108,7 @@
 		<dependency>
 			<groupId>de.bluecolored</groupId>
 			<artifactId>bluemap-common</artifactId>
-			<!-- run `./gradlew publishToMavenLocal` in BlueMap to get this -->
-			<version>5.9-17</version>
+			<version>5.10</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -121,7 +120,7 @@
 		<dependency>
 			<groupId>com.technicjelle</groupId>
 			<artifactId>BMUtils</artifactId>
-			<version>5.0.0</version>
+			<version>5.0.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -134,16 +133,19 @@
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-api</artifactId>
 			<version>4.23.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-gson</artifactId>
 			<version>4.23.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
 			<artifactId>adventure-text-serializer-plain</artifactId>
 			<version>4.23.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
