@@ -72,6 +72,7 @@ public class HTMLComponentSerializer {
 				//Decorations
 				if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
 					cssClasses.add("obfuscated");
+					text = "█".repeat(text.length());
 				} else if (textStyle.hasDecoration(TextDecoration.BOLD)) {
 					cssStyles.add("font-weight: bold;");
 				} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
