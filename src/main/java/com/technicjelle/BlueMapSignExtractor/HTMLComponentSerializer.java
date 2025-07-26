@@ -71,19 +71,25 @@ public class HTMLComponentSerializer {
 				}
 
 				//Decorations
+				if (textStyle.hasDecoration(TextDecoration.BOLD)) {
+					cssStyles.add("font-weight: bold;");
+				}
+				if (textStyle.hasDecoration(TextDecoration.ITALIC)) {
+					cssStyles.add("font-style: italic;");
+				}
+				if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+					cssStyles.add("text-decoration: line-through underline;");
+				} else {
+					if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
+						cssStyles.add("text-decoration: line-through;");
+					}
+					if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
+						cssStyles.add("text-decoration: underline;");
+					}
+				}
 				if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
 					cssClasses.add("obfuscated");
 					text = "█".repeat(text.length());
-				} else if (textStyle.hasDecoration(TextDecoration.BOLD)) {
-					cssStyles.add("font-weight: bold;");
-				} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-					cssStyles.add("text-decoration: line-through underline;");
-				} else if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
-					cssStyles.add("text-decoration: line-through;");
-				} else if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-					cssStyles.add("text-decoration: underline;");
-				} else if (textStyle.hasDecoration(TextDecoration.ITALIC)) {
-					cssStyles.add("font-style: italic;");
 				}
 			}
 		}
