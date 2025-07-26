@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.technicjelle.BlueMapSignExtractor.BlueMapSignExtractor.logger;
+
 public class HTMLComponentSerializer {
 	private static final HTMLComponentSerializer INSTANCE = new HTMLComponentSerializer();
 
@@ -48,13 +50,13 @@ public class HTMLComponentSerializer {
 						if (fallback != null) {
 							text = fallback;
 						} else {
-							BlueMapSignExtractor.logger.logWarning("TranslatableComponent does not have a Fallback!");
+							logger.noFloodWarning("TranslatableComponent does not have a Fallback!");
 							text = "";
 						}
 						break;
 					default:
-						throw new RuntimeException("""
-								Unexpected component type! Please report this as a bug on GitHub!
+						throw new RuntimeException("Unexpected component type, " + component.getClass().getName() + """
+								! Please report this as a bug on GitHub!
 								https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
 								Include this whole error log, and also the region file in which this happened.""");
 				}

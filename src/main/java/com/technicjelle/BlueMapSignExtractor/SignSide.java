@@ -22,7 +22,6 @@ public class SignSide {
 	}
 
 	public SignSide(@NotNull SignBlockEntity.TextData textData, int dataVersion) {
-		BlueMapSignExtractor.logger.logInfo("----------------------------------------------------------------------------------------------------");
 		this.messages = textData.getMessages().stream().map(m -> new SignLine(m, dataVersion)).toList();
 		this.signColour = Objects.requireNonNullElse(SignSideColour.get(textData.getColor()), SignSideColour.BLACK);
 		this.isGlowing = textData.isHasGlowingText();

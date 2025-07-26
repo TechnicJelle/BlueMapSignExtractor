@@ -65,7 +65,7 @@ public class WorldWatcher extends Thread {
 	public void run() {
 		if (delayTimer == null) delayTimer = new Timer("BMSE-WorldWatcher-DelayTimer", true);
 
-		logger.logInfo("Started watching world '" + world.getId() + "' for sign updates...");
+		logger.logDebug("Started watching world '" + world.getId() + "' for sign updates...");
 
 		//Initial update
 		world.listRegions().forEach(this::updateRegion);
@@ -80,7 +80,7 @@ public class WorldWatcher extends Thread {
 		} catch (InterruptedException iex) {
 			Thread.currentThread().interrupt();
 		} finally {
-			logger.logInfo("Stopped watching world " + world.getId() + " for sign updates.");
+			logger.logDebug("Stopped watching world " + world.getId() + " for sign updates.");
 			if (!closed) {
 				logger.logWarning("Region-file watch-service for world " + world.getId() +
 								  " stopped unexpectedly! (The signs might not update automatically from now on)");

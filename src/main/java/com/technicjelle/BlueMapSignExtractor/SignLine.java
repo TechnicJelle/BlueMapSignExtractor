@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
+import static com.technicjelle.BlueMapSignExtractor.BlueMapSignExtractor.logger;
+
 public class SignLine {
 	private static final Gson GSON = new Gson();
 	private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
@@ -25,27 +27,23 @@ public class SignLine {
 			case String string:
 				//https://minecraft.wiki/w/Data_version#List_of_data_versions
 				if (dataVersion == -1) {
-					BlueMapSignExtractor.logger.logInfo("String, Not MCA, DataVersion == -1: " + string);
+					logger.noFloodWarning("message was a String, but the world doesn't seem to be MCA, so the DataVersion was -1.\n" + string);
 					component = Component.text(string); //We have no clue what it is, so we just let it be.
 				} else if (dataVersion >= 4298) {
 					// Text format changed from JSON to SNBT (Text Component) here: https://minecraft.wiki/w/Java_Edition_25w02a
 					// But this line is apparently just a simple line. More complicated lines use the `Map<>` case below.
-					BlueMapSignExtractor.logger.logInfo("String, Text Component Format: " + string);
 					component = Component.text(string);
 				} else {
 					// Sign format is JSON
-					BlueMapSignExtractor.logger.logInfo("String, JSON Format: " + string);
 					component = GSON_COMPONENT_SERIALIZER.deserialize(string);
 				}
 				break;
 			case List<?> list:
-				// Honestly, I don't know when this happens.
-				BlueMapSignExtractor.logger.logWarning("List: " + list);
-				component = Component.text(list.toString());
-				break;
+				throw new RuntimeException("message was a List, " + message.getClass().getName() + "!\n" + list + """
+						\nPlease report this as a bug on GitHub!
+						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
+						Include this whole error log, and also the region file in which this happened.""");
 			case Map<?, ?> map:
-				BlueMapSignExtractor.logger.logInfo("Map: " + map);
-
 				// For some reason, there is a "" key sometimes, with the text of the sign in it.
 				// Adventure cannot deal with that, so we do it manually.
 				if (map.get("") instanceof String string) {
@@ -54,25 +52,21 @@ public class SignLine {
 				}
 
 				String json = GSON.toJson(map);
-				BlueMapSignExtractor.logger.logInfo("JSON: " + json);
-
 				component = GSON_COMPONENT_SERIALIZER.deserialize(json);
 				break;
 			case null:
-				BlueMapSignExtractor.logger.logWarning("text was null!?");
-				component = Component.empty();
-				break;
+				throw new RuntimeException("""
+						message was null! Please report this as a bug on GitHub!
+						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
+						Include this whole error log, and also the region file in which this happened.""");
 			default:
-				BlueMapSignExtractor.logger.logWarning("Unknown: " + message);
-				component = Component.text(message.toString()); //We have no clue what it is, so we just let it be.
-				break;
+				throw new RuntimeException("message was an unexpected type, " + message.getClass().getName() + "!\n" + message + """
+						\nPlease report this as a bug on GitHub!
+						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
+						Include this whole error log, and also the region file in which this happened.""");
 		}
-		BlueMapSignExtractor.logger.logInfo("Component: " + component);
 		this.html = HTML_COMPONENT_SERIALIZER.serialize(component);
-		BlueMapSignExtractor.logger.logInfo("HTML: " + this.html);
 		this.plainText = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
-		BlueMapSignExtractor.logger.logInfo("Plain Text: " + this.plainText);
-		BlueMapSignExtractor.logger.logInfo("---------------------");
 	}
 
 	public @NotNull String getHtml() {
