@@ -48,6 +48,38 @@
 							<pattern>net.kyori</pattern>
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.adventure</shadedPattern>
 						</relocation>
+						<relocation>
+							<pattern>com.google.errorprone</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.errorprone</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.google.auto</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.auto</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>io.leangen.geantyref</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.geantyref</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.apache.commons</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.apache.commons</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.checkerframework</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.checkerframework</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.jetbrains.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.intellij.lang.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.jspecify.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
+						</relocation>
 					</relocations>
 				</configuration>
 				<executions>
@@ -114,6 +146,12 @@
 			<artifactId>bluemap-common</artifactId>
 			<version>5.10</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>de.bluecolored</groupId>
@@ -144,6 +182,12 @@
 			<artifactId>adventure-text-serializer-gson</artifactId>
 			<version>4.23.0</version>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.kyori</groupId>
