@@ -6,6 +6,7 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -100,7 +101,7 @@ public class HTMLComponentSerializer {
 		}
 		sb.append(">");
 
-		sb.append(text);
+		sb.append(StringEscapeUtils.escapeHtml4(text));
 
 		for (Component child : component.children()) {
 			loop(sb, child);
