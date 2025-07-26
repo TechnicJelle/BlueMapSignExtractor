@@ -41,7 +41,7 @@ public class BlueMapSignExtractor implements Runnable {
 
 		try {
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "style.css", "bmse.css", false);
-			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "obfuscated_text", "bmse_obfuscated_text.js", false);
+			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "obfuscated_text.js", "bmse_obfuscated_text.js", false);
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "Minecraft.otf", "Minecraft.otf", false);
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "Minecraft-Bold.otf", "Minecraft-Bold.otf", false);
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "sign_oak.png", "sign_oak.png", false);
