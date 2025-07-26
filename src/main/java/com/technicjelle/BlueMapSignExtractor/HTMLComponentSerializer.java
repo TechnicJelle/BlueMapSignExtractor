@@ -78,13 +78,13 @@ public class HTMLComponentSerializer {
 					cssStyles.add("font-style: italic;");
 				}
 				if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH) && textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-					cssStyles.add("text-decoration: line-through underline;");
+					cssStyles.add("text-decoration: line-through underline 0.1em;");
 				} else {
 					if (textStyle.hasDecoration(TextDecoration.STRIKETHROUGH)) {
-						cssStyles.add("text-decoration: line-through;");
+						cssStyles.add("text-decoration: line-through 0.1em;");
 					}
 					if (textStyle.hasDecoration(TextDecoration.UNDERLINED)) {
-						cssStyles.add("text-decoration: underline;");
+						cssStyles.add("text-decoration: underline 0.1em;");
 					}
 				}
 				if (textStyle.hasDecoration(TextDecoration.OBFUSCATED)) {
