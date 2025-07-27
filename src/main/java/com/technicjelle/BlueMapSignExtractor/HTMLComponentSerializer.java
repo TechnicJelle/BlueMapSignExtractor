@@ -55,10 +55,7 @@ public class HTMLComponentSerializer {
 						}
 						break;
 					default:
-						throw new RuntimeException("Unexpected component type, " + component.getClass().getName() + """
-								! Please report this as a bug on GitHub!
-								https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
-								Include this whole error log, and also the region file in which this happened.""");
+						throw new SignException("Unexpected component type: " + component.getClass().getName(), component);
 				}
 			}
 

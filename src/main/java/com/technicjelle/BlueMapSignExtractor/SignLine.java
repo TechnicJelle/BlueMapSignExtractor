@@ -27,7 +27,7 @@ public class SignLine {
 			case String string:
 				//https://minecraft.wiki/w/Data_version#List_of_data_versions
 				if (dataVersion == -1) {
-					logger.noFloodWarning("message was a String, but the world doesn't seem to be MCA, so the DataVersion was -1.\n" + string);
+					logger.noFloodWarning("message was a String, but the world doesn't seem to be MCA, so the DataVersion was -1.\n\t" + string);
 					component = Component.text(string); //We have no clue what it is, so we just let it be.
 				} else if (dataVersion >= 4298) {
 					// Text format changed from JSON to SNBT (Text Component) here: https://minecraft.wiki/w/Java_Edition_25w02a
@@ -39,10 +39,7 @@ public class SignLine {
 				}
 				break;
 			case List<?> list:
-				throw new RuntimeException("message was a List, " + message.getClass().getName() + "!\n" + list + """
-						\nPlease report this as a bug on GitHub!
-						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
-						Include this whole error log, and also the region file in which this happened.""");
+				throw new SignException("message was a List: " + message.getClass().getName(), list);
 			case Map<?, ?> map:
 				// For some reason, there is a "" key sometimes, with the text of the sign in it.
 				// Adventure cannot deal with that, so we do it manually.
@@ -55,15 +52,9 @@ public class SignLine {
 				component = GSON_COMPONENT_SERIALIZER.deserialize(json);
 				break;
 			case null:
-				throw new RuntimeException("""
-						message was null! Please report this as a bug on GitHub!
-						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
-						Include this whole error log, and also the region file in which this happened.""");
+				throw new SignException("message was null!");
 			default:
-				throw new RuntimeException("message was an unexpected type, " + message.getClass().getName() + "!\n" + message + """
-						\nPlease report this as a bug on GitHub!
-						https://github.com/TechnicJelle/BlueMapSignExtractor/issues/new
-						Include this whole error log, and also the region file in which this happened.""");
+				throw new SignException("message was an unexpected type: " + message.getClass().getName(), message);
 		}
 		this.html = HTML_COMPONENT_SERIALIZER.serialize(component);
 		this.plainText = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);

@@ -8,6 +8,7 @@ import de.bluecolored.bluemap.common.api.BlueMapMapImpl;
 import de.bluecolored.bluemap.common.api.BlueMapWorldImpl;
 import de.bluecolored.bluemap.core.util.WatchService;
 import de.bluecolored.bluemap.core.world.Chunk;
+import de.bluecolored.bluemap.core.world.ChunkConsumer;
 import de.bluecolored.bluemap.core.world.Region;
 import de.bluecolored.bluemap.core.world.World;
 import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
@@ -99,18 +100,19 @@ public class WorldWatcher extends Thread {
 			@Override
 			public void run() {
 				synchronized (WorldWatcher.this) {
+					int x = regionPos.getX();
+					int z = regionPos.getY();
+					String regionPrefix = "sign#" + x + "|" + z + "@";
+
+					// First, remove all markers from this region
+					markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
+
+					// Then, add them back
+					Region<Chunk> region = world.getRegion(x, z);
 					try {
-						int x = regionPos.getX();
-						int z = regionPos.getY();
-						String regionPrefix = "sign#" + x + "|" + z + "@";
-
-						// First, remove all markers from this region
-						markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
-
-						// Then, add them back
-						Region<Chunk> region = world.getRegion(x, z);
-						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
-							try {
+						region.iterateAllChunks(new ChunkConsumer<>() {
+							@Override
+							public void accept(int chunkX, int chunkZ, Chunk chunk) {
 								//The signs need to know the data version, so they can use the correct String parsing method
 								final int dataVersion = chunk instanceof MCAChunk mcaChunk ? mcaChunk.getDataVersion() : -1;
 								chunk.iterateBlockEntities(blockEntity -> {
@@ -122,16 +124,22 @@ public class WorldWatcher extends Thread {
 										markerSet.put(sign.createKey(regionPrefix), marker);
 									}
 								});
-							} catch (Exception e) {
-								throw new RuntimeException("Chunk X: " + chunkX + ", Z: " + chunkZ, e);
+							}
+
+							@Override
+							public void fail(int chunkX, int chunkZ, IOException ex) {
+								if (ex.getCause() instanceof SignException signEx) {
+									throw signEx;
+								}
+								logger.logDebug("Failed to load chunk (%d, %d) from region (x:%d, z:%d):\n%s".formatted(chunkX, chunkZ, x, z, ex));
 							}
 						});
 
 						// Force save the markers to the storage
 						// This is especially important for the CLI, which otherwise would not save the markers for a long time
 						saveMarkers(); //TODO: Should be done less (only when all regions are done)
-					} catch (IOException e) {
-						logger.logError("Failed to get region" + regionPos, e);
+					} catch (IOException | SignException e) {
+						logger.logError("Failed to get region (x:%d, z:%d)".formatted(x, z), e);
 					}
 				}
 			}
