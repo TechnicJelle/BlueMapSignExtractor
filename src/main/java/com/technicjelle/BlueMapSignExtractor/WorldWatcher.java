@@ -100,13 +100,15 @@ public class WorldWatcher extends Thread {
 			public void run() {
 				synchronized (WorldWatcher.this) {
 					try {
-						String regionPrefix = "sign#" + regionPos.getX() + "|" + regionPos.getY() + "@";
+						int x = regionPos.getX();
+						int z = regionPos.getY();
+						String regionPrefix = "sign#" + x + "|" + z + "@";
 
 						// First, remove all markers from this region
 						markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
 
 						// Then, add them back
-						Region<Chunk> region = world.getRegion(regionPos.getX(), regionPos.getY());
+						Region<Chunk> region = world.getRegion(x, z);
 						region.iterateAllChunks((int chunkX, int chunkZ, Chunk chunk) -> {
 							try {
 								//The signs need to know the data version, so they can use the correct String parsing method
