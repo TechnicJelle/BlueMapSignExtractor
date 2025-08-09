@@ -4,8 +4,8 @@
 
 Displays signs on your [BlueMap](https://github.com/BlueMap-Minecraft/BlueMap) as markers!
 
-![Screenshot of many signs with differently coloured and glowing text on BlueMap](.github/readme_assets/demo_all_colours.png)
-![Screenshot of eight signs rotated in different directions on BlueMap](.github/readme_assets/demo_sides.png)
+![BlueMap screenshot of many signs with differently coloured and glowing text](.github/readme_assets/demo_all_colours.png)
+![BlueMap screenshot of eight signs rotated in different directions](.github/readme_assets/demo_sides.png)
 
 This is a Native BlueMap Addon, so it should be compatible with
 all platforms and all versions that BlueMap supports, including the CLI!\
@@ -14,6 +14,14 @@ Just put the `.jar` file in BlueMap's `packs/` directory, and it should work out
 To reload this addon, just reload BlueMap itself with `/bluemap reload`.
 
 ## [Click here to download!](../../releases/latest)
+
+## Screenshots
+
+![BlueMap screenshot of one sign with all sixteen colours on it](.github/readme_assets/demo-multiple-colours-on-one-sign.png)
+
+| In-Game                                                                                                                                       | BlueMap with Sign Extractor                                                                                                                   |
+|-----------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| ![Minecraft screenshot of many signs with various formatting and colours on multiple lines](.github/readme_assets/demo-formatting-ingame.png) | ![BlueMap screenshot of the same signs, looking almost identical to the Minecraft screenshot](.github/readme_assets/demo-formatting-bmse.png) |
 
 ## Support
 
