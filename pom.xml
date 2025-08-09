@@ -6,8 +6,7 @@
 
 	<groupId>com.technicjelle</groupId>
 	<artifactId>BlueMapSignExtractor</artifactId>
-	<version>1.5</version>
-	<packaging>jar</packaging>
+	<version>2.0-BETA</version>
 
 	<name>BlueMapSignExtractor</name>
 	<url>https://github.com/TechnicJelle/BlueMapSignExtractor/</url>
@@ -23,13 +22,12 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.13.0</version>
+				<version>3.14.0</version>
 				<configuration>
 					<release>${java.version}</release>
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.6.0</version>
 				<configuration>
@@ -39,20 +37,48 @@
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.BMUtils</shadedPattern>
 						</relocation>
 						<relocation>
-							<pattern>com.technicjelle.MCUtils</pattern>
-							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.MCUtils</shadedPattern>
-						</relocation>
-						<relocation>
 							<pattern>com.technicjelle.UpdateChecker</pattern>
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.UpdateChecker</shadedPattern>
 						</relocation>
 						<relocation>
-							<pattern>de.bluecolored.bluenbt</pattern>
-							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.bluenbt</shadedPattern>
+							<pattern>org.spongepowered.configurate</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.configurate</shadedPattern>
 						</relocation>
 						<relocation>
-							<pattern>org.bstats</pattern>
-							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.bstats</shadedPattern>
+							<pattern>net.kyori</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.adventure</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.google.errorprone</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.errorprone</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>com.google.auto</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.auto</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>io.leangen.geantyref</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.geantyref</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.apache.commons</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.apache.commons</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.checkerframework</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.checkerframework</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.jetbrains.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.intellij.lang.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.jspecify.annotations</pattern>
+							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.annotations</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
@@ -63,7 +89,19 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+										<exclude>META-INF/MANIFEST.MF</exclude>
+									</excludes>
+								</filter>
+							</filters>
 							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<minimizeJar>true</minimizeJar>
 						</configuration>
 					</execution>
 				</executions>
@@ -74,7 +112,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<includes>
-					<include>**/*.yml</include>
+					<include>**/*.addon.json</include>
 				</includes>
 			</resource>
 			<resource>
@@ -86,17 +124,13 @@
 
 	<repositories>
 		<repository>
-			<id>papermc-repo</id>
-			<url>https://repo.papermc.io/repository/maven-public/</url>
-		</repository>
-		<repository>
-			<id>sonatype</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
-		</repository>
-		<repository>
 			<id>bluecolored-releases</id>
 			<name>BlueColored Repository</name>
 			<url>https://repo.bluecolored.de/releases</url>
+		</repository>
+		<repository>
+			<id>spongepowered</id>
+			<url>https://repo.spongepowered.org/maven/</url>
 		</repository>
 	</repositories>
 
@@ -108,39 +142,63 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>de.bluecolored</groupId>
+			<artifactId>bluemap-common</artifactId>
+			<version>5.10</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>de.bluecolored</groupId>
+			<artifactId>bluemap-api</artifactId>
+			<version>2.7.4</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.technicjelle</groupId>
 			<artifactId>BMUtils</artifactId>
-			<version>4.2.2</version>
+			<version>5.0.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.technicjelle</groupId>
-			<artifactId>MCUtils</artifactId>
-			<version>2.0</version>
+			<groupId>org.spongepowered</groupId>
+			<artifactId>configurate-hocon</artifactId>
+			<version>4.2.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.destroystokyo.paper</groupId>
-			<artifactId>paper-api</artifactId>
-			<version>1.13-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.bluecolored.bluemap</groupId>
-			<artifactId>BlueMapAPI</artifactId>
-			<version>2.7.2</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.bluecolored.bluenbt</groupId>
-			<artifactId>BlueNBT</artifactId>
-			<version>3.0.1</version>
+			<groupId>net.kyori</groupId>
+			<artifactId>adventure-api</artifactId>
+			<version>4.23.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.bstats</groupId>
-			<artifactId>bstats-bukkit</artifactId>
-			<version>3.1.0</version>
+			<groupId>net.kyori</groupId>
+			<artifactId>adventure-text-serializer-gson</artifactId>
+			<version>4.23.0</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>net.kyori</groupId>
+			<artifactId>adventure-text-serializer-plain</artifactId>
+			<version>4.23.0</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.14.0</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
