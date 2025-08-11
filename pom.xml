@@ -156,7 +156,7 @@
 		<dependency>
 			<groupId>de.bluecolored</groupId>
 			<artifactId>bluemap-api</artifactId>
-			<version>2.7.4</version>
+			<version>2.7.5</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
