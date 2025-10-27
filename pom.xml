@@ -144,7 +144,7 @@
 		<dependency>
 			<groupId>de.bluecolored</groupId>
 			<artifactId>bluemap-common</artifactId>
-			<version>5.12</version>
+			<version>5.13</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
