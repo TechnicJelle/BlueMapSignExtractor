@@ -15,12 +15,14 @@ import de.bluecolored.bluemap.core.world.mca.blockentity.SignBlockEntity;
 import de.bluecolored.bluemap.core.world.mca.chunk.MCAChunk;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.technicjelle.BlueMapSignExtractor.BlueMapSignExtractor.logger;
 
@@ -92,8 +94,27 @@ public class WorldWatcher extends Thread {
 
 		logger.logDebug("Started watching world '" + world.getId() + "' for sign updates...");
 
-		//Initial update
-		world.listRegions().forEach(this::updateRegion);
+		//Initial scan — process regions synchronously (no debounce needed on first load)
+		Collection<Vector2i> regions = world.listRegions();
+		int total = regions.size();
+		logger.logInfo("Scanning world '%s': %d regions to scan...".formatted(world.getId(), total));
+		int processed = 0;
+		int lastReportedPercent = 0;
+		AtomicInteger markersFound = new AtomicInteger(0);
+		for (Vector2i regionPos : regions) {
+			if (closed) break;
+			markersFound.addAndGet(processRegion(regionPos));
+			processed++;
+			int percent = total > 0 ? (int) ((processed * 100L) / total) : 100;
+			if (percent >= lastReportedPercent + 10) {
+				lastReportedPercent = percent - (percent % 10);
+				logger.logInfo("Scanning world '%s': %d/%d regions (%d%%)..."
+					.formatted(world.getId(), processed, total, lastReportedPercent));
+			}
+		}
+		logger.logInfo("Scanning world '%s' complete: %d regions scanned, %d markers found"
+			.formatted(world.getId(), total, markersFound.get()));
+		saveMarkers();
 
 		try {
 			while (!closed)
@@ -112,6 +133,58 @@ public class WorldWatcher extends Thread {
 		}
 	}
 
+	/**
+	 * Processes a region synchronously, returning the number of markers found.
+	 */
+	private synchronized int processRegion(Vector2i regionPos) {
+		int x = regionPos.getX();
+		int z = regionPos.getY();
+		String regionPrefix = "sign#" + x + "|" + z + "@";
+
+		// Remove markers with this region prefix from ALL marker sets
+		for (MarkerSet markerSet : markerSets.values()) {
+			markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
+		}
+
+		// Re-scan the region and add group markers
+		AtomicInteger count = new AtomicInteger(0);
+		Region<Chunk> region = world.getRegion(x, z);
+		try {
+			region.iterateAllChunks(new ChunkConsumer<>() {
+				@Override
+				public void accept(int chunkX, int chunkZ, Chunk chunk) {
+					final int dataVersion = chunk instanceof MCAChunk mcaChunk ? mcaChunk.getDataVersion() : -1;
+					chunk.iterateBlockEntities(blockEntity -> {
+						if (blockEntity instanceof SignBlockEntity signBlockEntity) {
+							Sign sign = new Sign(signBlockEntity, dataVersion);
+							Optional<String> groupName = sign.getGroupName();
+							if (groupName.isEmpty()) return;
+
+							MarkerSet markerSet = getOrCreateMarkerSet(groupName.get());
+							POIMarker marker = sign.createGroupMarker(config);
+							markerSet.put(sign.createKey(regionPrefix), marker);
+							count.incrementAndGet();
+						}
+					});
+				}
+
+				@Override
+				public void fail(int chunkX, int chunkZ, IOException ex) {
+					if (ex.getCause() instanceof SignException signEx) {
+						throw signEx;
+					}
+					logger.logDebug("Failed to load chunk (%d, %d) from region (x:%d, z:%d):\n%s".formatted(chunkX, chunkZ, x, z, ex));
+				}
+			});
+		} catch (IOException | SignException e) {
+			logger.logError("Failed to get region (x:%d, z:%d)".formatted(x, z), e);
+		}
+		return count.get();
+	}
+
+	/**
+	 * Schedules a region update with a 5-second debounce (for live file-watch updates).
+	 */
 	private synchronized void updateRegion(Vector2i regionPos) {
 		if (closed) return;
 
@@ -122,48 +195,8 @@ public class WorldWatcher extends Thread {
 			@Override
 			public void run() {
 				synchronized (WorldWatcher.this) {
-					int x = regionPos.getX();
-					int z = regionPos.getY();
-					String regionPrefix = "sign#" + x + "|" + z + "@";
-
-					// Remove markers with this region prefix from ALL marker sets
-					for (MarkerSet markerSet : markerSets.values()) {
-						markerSet.getMarkers().keySet().removeIf(key -> key.startsWith(regionPrefix));
-					}
-
-					// Re-scan the region and add group markers
-					Region<Chunk> region = world.getRegion(x, z);
-					try {
-						region.iterateAllChunks(new ChunkConsumer<>() {
-							@Override
-							public void accept(int chunkX, int chunkZ, Chunk chunk) {
-								final int dataVersion = chunk instanceof MCAChunk mcaChunk ? mcaChunk.getDataVersion() : -1;
-								chunk.iterateBlockEntities(blockEntity -> {
-									if (blockEntity instanceof SignBlockEntity signBlockEntity) {
-										Sign sign = new Sign(signBlockEntity, dataVersion);
-										Optional<String> groupName = sign.getGroupName();
-										if (groupName.isEmpty()) return; // Not a group sign, skip
-
-										MarkerSet markerSet = getOrCreateMarkerSet(groupName.get());
-										POIMarker marker = sign.createGroupMarker(config);
-										markerSet.put(sign.createKey(regionPrefix), marker);
-									}
-								});
-							}
-
-							@Override
-							public void fail(int chunkX, int chunkZ, IOException ex) {
-								if (ex.getCause() instanceof SignException signEx) {
-									throw signEx;
-								}
-								logger.logDebug("Failed to load chunk (%d, %d) from region (x:%d, z:%d):\n%s".formatted(chunkX, chunkZ, x, z, ex));
-							}
-						});
-
-						saveMarkers();
-					} catch (IOException | SignException e) {
-						logger.logError("Failed to get region (x:%d, z:%d)".formatted(x, z), e);
-					}
+					processRegion(regionPos);
+					saveMarkers();
 				}
 			}
 		};
