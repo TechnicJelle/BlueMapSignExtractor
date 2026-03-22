@@ -85,6 +85,10 @@ public class Sign {
 	public String getDetailHtml() {
 		List<SignLine> messages = front.getMessages();
 		StringBuilder sb = new StringBuilder();
+		// Add group name header
+		getGroupName().ifPresent(group ->
+			sb.append("<b>[").append(escapeHtml(group)).append("]</b><br>")
+		);
 		// Lines 2-4 (index 1-3)
 		for (int i = 1; i < messages.size(); i++) {
 			SignLine line = messages.get(i);
