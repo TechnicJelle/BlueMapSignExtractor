@@ -105,7 +105,8 @@ public class Sign {
 		POIMarker.Builder builder = POIMarker.builder()
 				.label(getPoiLabel())
 				.position(position)
-				.detail(getDetailHtml());
+				.detail(getDetailHtml())
+				.styleClasses("bm-sign-marker");
 
 		if (config.getMaxDistance() > 0) {
 			builder.maxDistance(config.getMaxDistance());

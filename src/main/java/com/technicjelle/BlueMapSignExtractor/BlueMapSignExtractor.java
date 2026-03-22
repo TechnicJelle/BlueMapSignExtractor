@@ -1,5 +1,6 @@
 package com.technicjelle.BlueMapSignExtractor;
 
+import com.technicjelle.BMUtils.BMCopy;
 import com.technicjelle.BMUtils.BMNative.BMNLogger;
 import com.technicjelle.BMUtils.BMNative.BMNMetadata;
 import de.bluecolored.bluemap.api.BlueMapAPI;
@@ -32,6 +33,12 @@ public class BlueMapSignExtractor implements Runnable {
 	}
 
 	final private Consumer<BlueMapAPI> onEnableListener = api -> {
+		try {
+			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "bm-sign-marker.css", "bm-sign-marker.css", false);
+		} catch (IOException e) {
+			logger.logError("Failed to copy CSS to BlueMap webapp!", e);
+		}
+
 		final Config config;
 		try {
 			config = Config.load(api);
