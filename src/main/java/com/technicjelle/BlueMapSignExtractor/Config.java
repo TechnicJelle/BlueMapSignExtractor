@@ -48,6 +48,6 @@ public class Config {
 	}
 
 	public double getMaxDistance() {
-		return maxDistance != null ? maxDistance : 32;
+		return maxDistance != null ? maxDistance : 0;
 	}
 }
