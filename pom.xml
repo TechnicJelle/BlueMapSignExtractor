@@ -5,12 +5,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.technicjelle</groupId>
-	<artifactId>BlueMapSignExtractor</artifactId>
+	<artifactId>bluemap-sign-markers</artifactId>
 	<version>2.0</version>
 
-	<name>BlueMapSignExtractor</name>
+	<name>BlueMap Sign Markers</name>
 	<url>https://github.com/TechnicJelle/BlueMapSignExtractor/</url>
-	<description>Displays signs on your BlueMap as markers!</description>
+	<description>Group-based POI markers from signs on your BlueMap!</description>
 
 	<properties>
 		<java.version>21</java.version>
@@ -37,10 +37,6 @@
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.BMUtils</shadedPattern>
 						</relocation>
 						<relocation>
-							<pattern>com.technicjelle.UpdateChecker</pattern>
-							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.UpdateChecker</shadedPattern>
-						</relocation>
-						<relocation>
 							<pattern>org.spongepowered.configurate</pattern>
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.configurate</shadedPattern>
 						</relocation>
@@ -59,10 +55,6 @@
 						<relocation>
 							<pattern>io.leangen.geantyref</pattern>
 							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.geantyref</shadedPattern>
-						</relocation>
-						<relocation>
-							<pattern>org.apache.commons</pattern>
-							<shadedPattern>${project.groupId}.${project.artifactId}.shadow.apache.commons</shadedPattern>
 						</relocation>
 						<relocation>
 							<pattern>org.checkerframework</pattern>
@@ -118,9 +110,39 @@
 			<resource>
 				<directory>src/main/resources</directory>
 				<filtering>false</filtering>
+				<excludes>
+					<exclude>**/*.addon.json</exclude>
+				</excludes>
 			</resource>
 		</resources>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>deploy-local</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals><goal>run</goal></goals>
+								<configuration>
+									<target>
+										<copy file="${project.build.directory}/${project.build.finalName}.jar"
+											  todir="${project.basedir}/../rizzleworks-server/plugins/BlueMap/packs/"
+											  overwrite="true"/>
+									</target>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
@@ -135,12 +157,6 @@
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.technicjelle</groupId>
-			<artifactId>UpdateChecker</artifactId>
-			<version>2.5.1</version>
-			<scope>compile</scope>
-		</dependency>
 		<dependency>
 			<groupId>de.bluecolored</groupId>
 			<artifactId>bluemap-common</artifactId>
@@ -196,10 +212,10 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>1.15.0</version>
-			<scope>compile</scope>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.11.4</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

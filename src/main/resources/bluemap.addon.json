@@ -1,5 +1,5 @@
 {
 	"id": "${project.artifactId}",
-	"entrypoint": "${project.groupId}.${project.artifactId}.${project.artifactId}",
+	"entrypoint": "com.technicjelle.BlueMapSignExtractor.BlueMapSignExtractor",
 	"version": "${project.version}"
 }

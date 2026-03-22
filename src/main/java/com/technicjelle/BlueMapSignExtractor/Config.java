@@ -14,9 +14,6 @@ public class Config {
 	private static final String fileName = "settings.conf";
 
 	@SuppressWarnings("unused")
-	private @Nullable String markerSetName;
-
-	@SuppressWarnings("unused")
 	private @Nullable Boolean toggleable;
 
 	@SuppressWarnings("unused")
@@ -24,9 +21,6 @@ public class Config {
 
 	@SuppressWarnings("unused")
 	private @Nullable Double maxDistance;
-
-	@SuppressWarnings("unused")
-	private @Nullable Boolean ignoreBlankSigns;
 
 	public static Config load(BlueMapAPI api) throws IOException {
 		BMNConfigDirectory.BMNCopy.fromJarResource(api, Config.class.getClassLoader(), fileName, fileName, false);
@@ -45,10 +39,6 @@ public class Config {
 		return config;
 	}
 
-	public String getMarkerSetName() {
-		return markerSetName != null ? markerSetName : "Signs";
-	}
-
 	public boolean getToggleable() {
 		return toggleable != null ? toggleable : true;
 	}
@@ -59,9 +49,5 @@ public class Config {
 
 	public double getMaxDistance() {
 		return maxDistance != null ? maxDistance : 32;
-	}
-
-	public boolean getIgnoreBlankSigns() {
-		return ignoreBlankSigns != null ? ignoreBlankSigns : true;
 	}
 }

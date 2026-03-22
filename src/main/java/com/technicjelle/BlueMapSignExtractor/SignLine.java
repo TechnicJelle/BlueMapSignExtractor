@@ -15,9 +15,7 @@ public class SignLine {
 	private static final Gson GSON = new Gson();
 	private static final GsonComponentSerializer GSON_COMPONENT_SERIALIZER = GsonComponentSerializer.gson();
 	private static final PlainTextComponentSerializer PLAIN_TEXT_COMPONENT_SERIALIZER = PlainTextComponentSerializer.plainText();
-	private static final HTMLComponentSerializer HTML_COMPONENT_SERIALIZER = HTMLComponentSerializer.html();
 
-	private final @NotNull String html;
 	private final @NotNull String plainText;
 
 	public SignLine(Object message, int dataVersion) {
@@ -28,21 +26,16 @@ public class SignLine {
 				//https://minecraft.wiki/w/Data_version#List_of_data_versions
 				if (dataVersion == -1) {
 					logger.noFloodWarning("message was a String, but the world doesn't seem to be MCA, so the DataVersion was -1.\n\t" + string);
-					component = Component.text(string); //We have no clue what it is, so we just let it be.
+					component = Component.text(string);
 				} else if (dataVersion >= 4298) {
-					// Text format changed from JSON to SNBT (Text Component) here: https://minecraft.wiki/w/Java_Edition_25w02a
-					// But this line is apparently just a simple line. More complicated lines use the `Map<>` case below.
 					component = Component.text(string);
 				} else {
-					// Sign format is JSON
 					component = GSON_COMPONENT_SERIALIZER.deserialize(string);
 				}
 				break;
 			case List<?> list:
 				throw new SignException("message was a List: " + message.getClass().getName(), list);
 			case Map<?, ?> map:
-				// For some reason, there is a "" key sometimes, with the text of the sign in it.
-				// Adventure cannot deal with that, so we do it manually.
 				if (map.get("") instanceof String string) {
 					component = Component.text(string);
 					break;
@@ -56,12 +49,7 @@ public class SignLine {
 			default:
 				throw new SignException("message was an unexpected type: " + message.getClass().getName(), message);
 		}
-		this.html = HTML_COMPONENT_SERIALIZER.serialize(component);
 		this.plainText = PLAIN_TEXT_COMPONENT_SERIALIZER.serialize(component);
-	}
-
-	public @NotNull String getHtml() {
-		return html;
 	}
 
 	public @NotNull String getPlainText() {
