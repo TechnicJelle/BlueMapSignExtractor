@@ -2,7 +2,6 @@ package com.technicjelle.BlueMapSignExtractor;
 
 import com.flowpowered.math.vector.Vector2i;
 import de.bluecolored.bluemap.api.BlueMapWorld;
-import de.bluecolored.bluemap.api.markers.Marker;
 import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.common.api.BlueMapMapImpl;
 import de.bluecolored.bluemap.common.api.BlueMapWorldImpl;
@@ -117,11 +116,11 @@ public class WorldWatcher extends Thread {
 								final int dataVersion = chunk instanceof MCAChunk mcaChunk ? mcaChunk.getDataVersion() : -1;
 								chunk.iterateBlockEntities(blockEntity -> {
 									if (blockEntity instanceof SignBlockEntity signBlockEntity) {
-										Sign sign = new Sign(signBlockEntity, dataVersion);
+										var blockState = chunk.getBlockState(signBlockEntity.getX(), signBlockEntity.getY(), signBlockEntity.getZ());
+										Sign sign = new Sign(signBlockEntity, dataVersion, blockState);
 										// If the config is set to ignore blank signs, skip them
-										if (config.getIgnoreBlankSigns() && sign.isBlank()) return;
-										Marker marker = sign.createMarker(config);
-										markerSet.put(sign.createKey(regionPrefix), marker);
+										if (sign.needsFrontMarker(config)) markerSet.put(sign.createKey(regionPrefix), sign.createMarker(config));
+										if (sign.needsBackMarker(config)) markerSet.put(sign.createBackKey(regionPrefix), sign.createBackMarker(config));
 									}
 								});
 							}

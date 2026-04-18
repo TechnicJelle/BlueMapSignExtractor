@@ -45,6 +45,8 @@ public class BlueMapSignExtractor implements Runnable {
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "Minecraft.otf", "Minecraft.otf", false);
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "Minecraft-Bold.otf", "Minecraft-Bold.otf", false);
 			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "sign_oak.png", "sign_oak.png", false);
+			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "CSS3DRenderer.js", "CSS3DRenderer.js", false, false);
+			BMCopy.jarResourceToWebApp(api, this.getClass().getClassLoader(), "html3d.js", "html3d.js", false);
 		} catch (IOException e) {
 			logger.logError("Failed to copy resources to BlueMap webapp!", e);
 		}
