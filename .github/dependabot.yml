@@ -5,8 +5,8 @@
 
 version: 2
 updates:
-  - package-ecosystem: "maven" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "maven"
+    directory: "/" # Location of package manifest
     schedule:
       interval: "weekly"
   - package-ecosystem: "github-actions"
@@ -14,7 +14,3 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    ignore:
-      - dependency-name: "advanced-security/maven-dependency-submission-action"
-        versions: [ "4.0.1" ]
-
