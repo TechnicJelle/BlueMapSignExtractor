@@ -51,10 +51,10 @@ public class Sign {
 				case "east"  -> 270.0;
 				default      -> 0.0; // south
 			};
-			this.yawDegrees = (360 - facingY) % 360;
+			this.yawDegrees = 360 - facingY;
 		} else {
 			int rotation = Integer.parseInt(props.getOrDefault("rotation", "0"));
-			this.yawDegrees = (360 - rotation * 22.5) % 360;
+			this.yawDegrees = 360 - rotation * 22.5;
 		}
 
 		if (blockId.endsWith("_wall_hanging_sign")) {
@@ -78,7 +78,7 @@ public class Sign {
 	}
 
 	public boolean needsFrontMarker(Config config) {
-		return !config.getIgnoreBlankSigns() || front.isWrittenOn();
+		return (!config.getIgnoreBlankSigns() && !needsBackMarker(config)) || front.isWrittenOn();
 	}
 
 	public boolean needsBackMarker(Config config) {
@@ -167,7 +167,7 @@ public class Sign {
 			final @Nullable String backLabel = back.getLabel();
 			if (backLabel != null) return backLabel;
 		}
-		return "Blank sign at " + blockX + "," + blockY + "," + blockZ;
+		return "Blank sign at " + blockX + ", " + blockY + ", " + blockZ;
 	}
 
 	private static String formatDegrees(double degrees) {
