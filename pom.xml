@@ -164,7 +164,7 @@
 		<dependency>
 			<groupId>com.technicjelle</groupId>
 			<artifactId>BMUtils</artifactId>
-			<version>5.0.4</version>
+			<version>5.1.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
