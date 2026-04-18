@@ -16,7 +16,7 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn package
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v7
         with:
