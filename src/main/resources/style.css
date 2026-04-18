@@ -17,13 +17,12 @@
 
 	/* Text settings */
 	font-family: Minecraft, sans-serif;
-	font-size: 17px;
+	font-size: 26px;
 
 	/* Misc settings */
-	line-height: 1;
+	line-height: 1.2;
 	box-sizing: border-box;
 	white-space: nowrap;
-	transform: translate(-50%, -50%);
 
 	/* Double sided signs */
 	display: grid;
@@ -38,11 +37,8 @@
 
 .sign-side {
 	/* Size settings */
-	width: 144px;
+	width: 288px;
 	aspect-ratio: 24 / 12;
-
-	/* Sign texture */
-	background: center / cover no-repeat url("sign_oak.png");
 
 	/* Pixel Scaling filter */
 	-ms-interpolation-mode: nearest-neighbor; /* IE 7+ (non-standard property) */
@@ -57,9 +53,29 @@
 	text-align: center;
 }
 
+.sign-2d {
+	font-size: 17px;
+	line-height: 1;
+	transform: translate(-50%, -50%);
+}
+
+.sign-2d .sign-side {
+	width: 144px;
+	background: center / cover no-repeat url("sign_oak.png");
+}
+
+.hanging {
+	font-size: 32px;
+}
+
+.hanging .sign-side {
+	width: 252px; /* 0.875 blocks × 288 px/block */
+	aspect-ratio: 14 / 10;
+}
+
 .sign-side > span {
 	/* Always show the full four lines, even if they're empty */
-	min-height: 1em;
+	min-height: 1lh;
 }
 
 .glowing {
