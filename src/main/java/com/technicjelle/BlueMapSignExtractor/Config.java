@@ -5,6 +5,7 @@ import de.bluecolored.bluemap.api.BlueMapAPI;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -27,6 +28,10 @@ public class Config {
 
 	@SuppressWarnings("unused")
 	private @Nullable Boolean ignoreBlankSigns;
+
+	@SuppressWarnings("unused")
+	@Setting("use-3d-markers")
+	private @Nullable Boolean use3dMarkers;
 
 	public static Config load(BlueMapAPI api) throws IOException {
 		BMNConfigDirectory.BMNCopy.fromJarResource(api, Config.class.getClassLoader(), fileName, fileName, false);
@@ -63,5 +68,9 @@ public class Config {
 
 	public boolean getIgnoreBlankSigns() {
 		return ignoreBlankSigns != null ? ignoreBlankSigns : true;
+	}
+
+	public boolean getUse3dMarkers() {
+		return use3dMarkers != null ? use3dMarkers : true;
 	}
 }
