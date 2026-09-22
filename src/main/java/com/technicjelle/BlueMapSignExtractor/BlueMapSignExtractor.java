@@ -30,7 +30,10 @@ public class BlueMapSignExtractor implements Runnable {
 			throw new RuntimeException(e);
 		}
 		logger.logInfo("Starting " + addonID + " " + addonVersion);
-		updateChecker = new UpdateChecker("TechnicJelle", addonID, addonVersion);
+		updateChecker = new UpdateChecker("TechnicJelle", addonID, addonVersion, throwable -> {
+			logger.logWarning("Failed to check for updates: " + throwable); // logs only the first line to the console (and the debug.log)
+			logger.logDebug("Failed to check for updates: " + UpdateChecker.trace(throwable)); // logs the full thing to the debug.log
+		});
 		updateChecker.checkAsync();
 		BlueMapAPI.onEnable(onEnableListener);
 		BlueMapAPI.onDisable(onDisableListener);
